@@ -413,6 +413,7 @@ Deno.test('admin audit endpoint returns filtered audit log entries', async () =>
   const path = `${directory}/audit.jsonl`;
   const sink = new FileAuditSink(path);
   await sink.write({
+    timestamp: '2026-03-31T10:00:00.000Z',
     requestId: 'req-a',
     sessionId: 'session-a',
     route: '/v1/chat/completions',
@@ -425,6 +426,7 @@ Deno.test('admin audit endpoint returns filtered audit log entries', async () =>
     findings: [],
   });
   await sink.write({
+    timestamp: '2026-03-31T12:00:00.000Z',
     requestId: 'req-b',
     sessionId: 'session-b',
     route: '/v1/chat/completions',
@@ -455,6 +457,88 @@ Deno.test('admin audit endpoint returns filtered audit log entries', async () =>
   assertEquals(response.status, 200, 'Expected admin audit endpoint to succeed');
   assertEquals(payload.count, 1, 'Expected one filtered audit event');
   assertEquals(payload.items[0].requestId, 'req-b', 'Expected filtered audit record');
+});
+
+Deno.test('admin audit endpoint supports detail lookup and time filtering', async () => {
+  const directory = await Deno.makeTempDir({ dir: '/tmp', prefix: 'secumesh-admin-audit-time-' });
+  const path = `${directory}/audit.jsonl`;
+  const sink = new FileAuditSink(path);
+  const repository = new FileAuditRepository(path);
+  await sink.write({
+    timestamp: '2026-03-31T08:00:00.000Z',
+    requestId: 'req-early',
+    sessionId: 'session-time',
+    route: '/v1/chat/completions',
+    method: 'POST',
+    clientIp: '127.0.0.1',
+    model: 'openai/gpt-3.5-turbo',
+    status: 200,
+    durationMs: 11,
+    stream: false,
+    findings: [],
+  });
+  await sink.write({
+    timestamp: '2026-03-31T14:00:00.000Z',
+    requestId: 'req-late',
+    sessionId: 'session-time',
+    route: '/v1/chat/completions',
+    method: 'POST',
+    clientIp: '127.0.0.1',
+    model: 'qwen/qwen-vl-plus',
+    status: 200,
+    durationMs: 11,
+    stream: false,
+    findings: [],
+  });
+
+  const handler = createHandler(
+    createTestConfig({
+      auditLogPath: path,
+      enableConsoleAudit: false,
+    }),
+    {
+      auditService: createQuietAuditService(),
+      auditRepository: repository,
+    },
+  );
+  const filteredResponse = await invokeGateway(
+    handler,
+    '/admin/audit?from=2026-03-31T12:00:00.000Z&limit=10',
+    { method: 'GET' },
+  );
+  const detailResponse = await invokeGateway(handler, '/admin/audit/req-late', { method: 'GET' });
+  const uiResponse = await invokeGateway(handler, '/admin/audit-ui', { method: 'GET' });
+
+  const filteredPayload = await filteredResponse.json();
+  const detailPayload = await detailResponse.json();
+  const uiText = await uiResponse.text();
+
+  assertEquals(filteredResponse.status, 200, 'Expected filtered audit endpoint to succeed');
+  assertEquals(filteredPayload.count, 1, 'Expected one time-filtered event');
+  assertEquals(filteredPayload.items[0].requestId, 'req-late', 'Expected late request in filter');
+  assertEquals(detailResponse.status, 200, 'Expected audit detail endpoint to succeed');
+  assertEquals(detailPayload.requestId, 'req-late', 'Expected correct detail record');
+  assertEquals(uiResponse.status, 200, 'Expected audit UI route to succeed');
+  assert(uiText.includes('Audit Viewer'), 'Expected audit UI content');
+});
+
+Deno.test('admin audit UI is accessible before entering auth token', async () => {
+  const handler = createHandler(
+    createTestConfig({
+      enableConsoleAudit: false,
+    }),
+    {
+      auditService: createQuietAuditService(),
+    },
+  );
+  const response = await handler(
+    new Request('http://gateway.local/admin/audit-ui', { method: 'GET' }),
+    createServeInfo(),
+  );
+  const text = await response.text();
+
+  assertEquals(response.status, 200, 'Expected audit UI shell to load without auth header');
+  assert(text.includes('Audit Viewer'), 'Expected audit UI shell content');
 });
 
 Deno.test('chat completions restores placeholders in SSE stream across chunk boundaries', async () => {

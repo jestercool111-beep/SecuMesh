@@ -91,6 +91,8 @@ export interface AuditQuery {
   sessionId?: string;
   model?: string;
   status?: number;
+  from?: string;
+  to?: string;
 }
 
 export interface AuditQueryResult {
@@ -131,6 +133,24 @@ export class FileAuditRepository {
         if (params.status !== undefined && item.status !== params.status) {
           return false;
         }
+        if (params.from || params.to) {
+          const timestamp = item.timestamp ? Date.parse(item.timestamp) : Number.NaN;
+          if (!Number.isFinite(timestamp)) {
+            return false;
+          }
+          if (params.from) {
+            const from = Date.parse(params.from);
+            if (Number.isFinite(from) && timestamp < from) {
+              return false;
+            }
+          }
+          if (params.to) {
+            const to = Date.parse(params.to);
+            if (Number.isFinite(to) && timestamp > to) {
+              return false;
+            }
+          }
+        }
         return true;
       })
       .slice(-params.limit)
@@ -145,5 +165,13 @@ export class FileAuditRepository {
       count: items.length,
       source: this.#path,
     };
+  }
+
+  async getByRequestId(requestId: string): Promise<AuditEvent | undefined> {
+    const result = await this.query({
+      limit: 10_000,
+      requestId,
+    });
+    return result.items.find((item) => item.requestId === requestId);
   }
 }

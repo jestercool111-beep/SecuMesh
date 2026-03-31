@@ -27,6 +27,7 @@ export interface SecurityFinding {
 }
 
 export interface AuditEvent {
+  timestamp: string;
   requestId: string;
   sessionId: string;
   route: string;

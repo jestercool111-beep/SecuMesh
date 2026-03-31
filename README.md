@@ -96,6 +96,8 @@ Operational endpoints:
 - `GET /health`: liveness and config summary
 - `GET /ready`: readiness check for upstream config, session store, and audit sinks
 - `GET /admin/audit`: query recent audit records from the JSONL audit file
+- `GET /admin/audit/:requestId`: fetch one audit record by request id
+- `GET /admin/audit-ui`: minimal in-browser audit viewer
 
 Example audit queries:
 
@@ -103,7 +105,9 @@ Example audit queries:
 curl "http://127.0.0.1:${PORT:-8080}/admin/audit?limit=20"
 curl "http://127.0.0.1:${PORT:-8080}/admin/audit?status=451"
 curl "http://127.0.0.1:${PORT:-8080}/admin/audit?model=qwen/qwen-vl-plus"
+curl "http://127.0.0.1:${PORT:-8080}/admin/audit?from=2026-03-31T00:00:00.000Z&to=2026-03-31T23:59:59.999Z"
 curl "http://127.0.0.1:${PORT:-8080}/admin/audit?requestId=<request-id>"
+curl "http://127.0.0.1:${PORT:-8080}/admin/audit/<request-id>"
 ```
 
 ## Project layout

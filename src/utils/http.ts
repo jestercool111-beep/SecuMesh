@@ -48,3 +48,9 @@ export function queryStringNumber(
   const withMin = options.min !== undefined ? Math.max(options.min, normalized) : normalized;
   return options.max !== undefined ? Math.min(options.max, withMin) : withMin;
 }
+
+export function html(body: string, init: ResponseInit = {}): Response {
+  const headers = new Headers(init.headers);
+  headers.set('content-type', 'text/html; charset=utf-8');
+  return new Response(body, { ...init, headers });
+}

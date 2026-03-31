@@ -1,0 +1,28 @@
+# Local environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Runtime logs and local audit output
+logs/
+*.log
+
+# OS/editor noise
+.DS_Store
+.vscode/
+.idea/
+
+# Temporary files
+.tmp/
+tmp/
+*.tmp
+
+# Deno cache or coverage artifacts
+coverage/
+
+# Embedded/local One API runtime data
+one-api/data/
+one-api/logs/
+
+# Test/runtime cookies and local debug state
+*.cookies
