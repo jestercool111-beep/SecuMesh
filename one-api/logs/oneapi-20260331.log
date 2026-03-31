@@ -1,0 +1,414 @@
+[INFO] 2026/03/31 - 15:20:32 | main.go:32 [main] One API v0.6.11-preview.7 started 
+[INFO] 2026/03/31 - 15:20:32 | model/main.go:103 [openSQLite] SQL_DSN not set, using SQLite as database 
+[INFO] 2026/03/31 - 15:20:32 | model/main.go:129 [InitDB] database migration started 
+[INFO] 2026/03/31 - 15:20:32 | model/main.go:134 [InitDB] database migrated 
+[INFO] 2026/03/31 - 15:20:32 | model/main.go:28 [CreateRootAccountIfNeed] no user exists, creating a root user for you: username is root, password is 123456 
+[INFO] 2026/03/31 - 15:20:32 | common/redis.go:20 [InitRedisClient] REDIS_CONN_STRING not set, Redis is not enabled 
+[INFO] 2026/03/31 - 15:20:32 | main.go:65 [main] using theme default 
+[INFO] 2026/03/31 - 15:20:32 | relay/adaptor/openai/token.go:23 [InitTokenEncoders] initializing token encoders 
+[INFO] 2026/03/31 - 15:20:50 | relay/adaptor/openai/token.go:49 [InitTokenEncoders] token encoders initialized 
+[INFO] 2026/03/31 - 15:20:50 | main.go:119 [main] server started on http://localhost:3000 
+[GIN] 2026/03/31 - 15:21:46 | 2026033115214655488059050065099 | 200 |   10.226125ms |    192.168.65.1 |     GET /
+[GIN] 2026/03/31 - 15:21:46 | 2026033115214662819384012957048 | 200 |   27.052209ms |    192.168.65.1 |     GET /static/css/main.722059cf.css
+[GIN] 2026/03/31 - 15:21:46 | 2026033115214662811563242950119 | 200 |   62.697167ms |    192.168.65.1 |     GET /static/js/main.60bacb1b.js
+[GIN] 2026/03/31 - 15:21:47 | 2026033115214742232509184584940 | 200 |     816.042µs |    192.168.65.1 |     GET /static/js/151.57777e47.chunk.js
+[GIN] 2026/03/31 - 15:21:47 | 2026033115214742408942484885331 | 200 |     338.417µs |    192.168.65.1 |     GET /logo.png
+[GIN] 2026/03/31 - 15:21:47 | 2026033115214744987309151648927 | 200 |    3.711542ms |    192.168.65.1 |     GET /api/status
+[GIN] 2026/03/31 - 15:21:47 | 2026033115214744949146651754037 | 200 |    5.680917ms |    192.168.65.1 |     GET /static/media/icons.38c6d8bab26db77d8c80.woff2
+[GIN] 2026/03/31 - 15:21:47 | 2026033115214747153234189106928 | 200 |     497.958µs |    192.168.65.1 |     GET /api/notice
+[GIN] 2026/03/31 - 15:21:47 | 2026033115214747142492461712976 | 200 |    1.102417ms |    192.168.65.1 |     GET /api/home_page_content
+[GIN] 2026/03/31 - 15:21:47 | 2026033115214748974421601213001 | 200 |    6.868625ms |    192.168.65.1 |     GET /static/media/outline-icons.687a4990ea22bb1a49d4.woff2
+[GIN] 2026/03/31 - 15:21:47 | 2026033115214748974454908941467 | 200 |    8.330666ms |    192.168.65.1 |     GET /static/media/brand-icons.278156e41e0ad908cf7f.woff2
+[GIN] 2026/03/31 - 15:21:58 | 2026033115215788733151203568819 | 200 |  113.319375ms |    192.168.65.1 |    POST /api/user/login
+[GIN] 2026/03/31 - 15:21:58 | 202603311521583049888731580377 | 200 |   31.938708ms |    192.168.65.1 |     GET /api/user/self
+[GIN] 2026/03/31 - 15:22:43 | 2026033115224345628246447218916 | 200 |  117.470208ms |    192.168.65.1 |     PUT /api/user/self
+[GIN] 2026/03/31 - 15:22:54 | 2026033115225425629317760585482 | 200 |    4.068542ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 15:22:54 | 2026033115225425582392709467217 | 200 |    4.629042ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 15:23:12 | 2026033115231233254267185888078 | 200 |    26.61125ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 15:23:14 | 202603311523144953233997596921 | 200 |    3.543708ms |    192.168.65.1 |     GET /api/redemption/?p=0
+[GIN] 2026/03/31 - 15:23:23 | 2026033115232372324696906676563 | 200 |    7.396125ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 15:23:23 | 2026033115232367857692737107532 | 200 |     58.3425ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 15:23:46 | 2026033115234648082667322554608 | 200 |    4.081167ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 15:23:47 | 2026033115234768784625760938261 | 200 |    2.099917ms |    192.168.65.1 |     GET /api/redemption/?p=0
+[GIN] 2026/03/31 - 15:23:52 | 2026033115235274024855158535860 | 200 |    2.725209ms |    192.168.65.1 |     GET /api/user/self
+[GIN] 2026/03/31 - 15:24:07 | 2026033115240760637496165081281 | 200 |   14.495542ms |    192.168.65.1 |     GET /api/user/?p=0&order=
+[GIN] 2026/03/31 - 15:24:11 | 2026033115241122174450420489453 | 200 |    6.766292ms |    192.168.65.1 |     GET /api/user/dashboard
+[GIN] 2026/03/31 - 15:24:14 | 2026033115241413172963115469388 | 200 |    4.853667ms |    192.168.65.1 |     GET /api/log/?p=0&type=0&username=&token_name=&model_name=&start_timestamp=0&end_timestamp=1774945454&channel=
+[GIN] 2026/03/31 - 15:24:26 | 2026033115242640528288663821251 | 200 |     1.44275ms |    192.168.65.1 |     GET /static/js/585.1283a89c.chunk.js
+[GIN] 2026/03/31 - 15:24:26 | 2026033115242646716888713757374 | 200 |   11.169542ms |    192.168.65.1 |     GET /api/about
+[GIN] 2026/03/31 - 15:28:07 | 2026033115280747877304468745745 | 200 |    6.602625ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 15:28:07 | 2026033115280747877300259259272 | 200 |     57.3875ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 15:28:13 | 2026033115281372325008966839130 | 200 |    5.296375ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 15:28:13 | 2026033115281372304238006855091 | 200 |   17.139625ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 15:32:27 | 2026033115322724340659535525403 | 200 |    42.13775ms |    192.168.65.1 |    POST /api/channel/
+[GIN] 2026/03/31 - 15:32:31 | 2026033115323182982512538890147 | 200 |   13.312792ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 15:32:31 | 2026033115323182403141605119125 | 200 |   19.623625ms |    192.168.65.1 |     GET /api/channel/?p=0
+[INFO] 2026/03/31 - 15:32:37 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"gpt-3.5-turbo"} 
+[ERROR] 2026/03/31 - 15:32:39 | relay/adaptor/openai/util.go:12 [ErrorWrapper] [unmarshal_response_body_failed]invalid character '<' looking for beginning of value 
+[GIN] 2026/03/31 - 15:32:39 | 2026033115323798064025382219543 | 200 |  1.043951042s |    192.168.65.1 |     GET /api/channel/test/1?model=gpt-3.5-turbo
+[INFO] 2026/03/31 - 15:32:39 | 2026033115323798064025382219543 | model/log.go:51 [recordLogHelper] record log: &{Id:1 UserId:0 CreatedAt:1774942359 Type:5 Content:渠道 Openrouter-personal-api 测试失败，错误：invalid character '<' looking for beginning of value Username: TokenName: ModelName:gpt-3.5-turbo Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:1 RequestId:2026033115323798064025382219543 ElapsedTime:1040 IsStream:false SystemPromptReset:false} 
+[INFO] 2026/03/31 - 15:32:47 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"gpt-3.5-turbo"} 
+[ERROR] 2026/03/31 - 15:32:48 | relay/adaptor/openai/util.go:12 [ErrorWrapper] [unmarshal_response_body_failed]invalid character '<' looking for beginning of value 
+[GIN] 2026/03/31 - 15:32:48 | 2026033115324793213409149694850 | 200 |  425.296917ms |    192.168.65.1 |     GET /api/channel/test/1?model=gpt-3.5-turbo
+[INFO] 2026/03/31 - 15:32:48 | 2026033115324793213409149694850 | model/log.go:51 [recordLogHelper] record log: &{Id:2 UserId:0 CreatedAt:1774942368 Type:5 Content:渠道 Openrouter-personal-api 测试失败，错误：invalid character '<' looking for beginning of value Username: TokenName: ModelName:gpt-3.5-turbo Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:1 RequestId:2026033115324793213409149694850 ElapsedTime:419 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 15:32:54 | 2026033115325423405105248096720 | 200 |     750.083µs |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 15:32:54 | 2026033115325423130992744196762 | 200 |     5.28875ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 15:34:20 | 2026033115342065682230031679213 | 200 |   17.195208ms |    192.168.65.1 |    POST /api/channel/
+[GIN] 2026/03/31 - 15:34:23 | 2026033115342393812171908690132 | 200 |    2.704917ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 15:34:23 | 2026033115342393814096982773417 | 200 |    3.443542ms |    192.168.65.1 |     GET /api/channel/?p=0
+[INFO] 2026/03/31 - 15:34:27 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"abab6.5-chat"} 
+[ERROR] 2026/03/31 - 15:34:29 | controller/channel-test.go:156 [testChannel] failed to parse error: response has no choices, 
+response: {"base_resp":{"status_code":2049,"status_msg":"invalid api key"}} 
+[GIN] 2026/03/31 - 15:34:29 | 2026033115342741256622052798519 | 200 |  1.913196209s |    192.168.65.1 |     GET /api/channel/test/2?model=abab6.5-chat
+[INFO] 2026/03/31 - 15:34:29 | 2026033115342741256622052798519 | model/log.go:51 [recordLogHelper] record log: &{Id:3 UserId:0 CreatedAt:1774942469 Type:5 Content:渠道 Minimax-personal 测试失败，错误：response has no choices Username: TokenName: ModelName:abab6.5-chat Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:2 RequestId:2026033115342741256622052798519 ElapsedTime:1911 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 15:34:38 | 2026033115343839745012876674702 | 200 |    8.024291ms |    192.168.65.1 |     GET /api/channel/2
+[GIN] 2026/03/31 - 15:34:38 | 2026033115343841756758692821945 | 200 |    5.037333ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 15:34:38 | 2026033115343841340825309656911 | 200 |   13.585625ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 15:34:56 | 2026033115345658088480340320229 | 200 |       3.846ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 15:34:56 | 2026033115345658088480375435115 | 200 |    6.331834ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 15:35:03 | 2026033115350357979495910178096 | 200 |    1.241292ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 15:35:03 | 2026033115350356781229284692278 | 200 |   13.653417ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 15:38:03 | 2026033115380394358025133675736 | 200 |    4.984792ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 15:38:03 | 2026033115380394272145986869506 | 200 |   19.099542ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 15:38:06 | 2026033115380629116233576061756 | 200 |      533.75µs |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 15:38:06 | 2026033115380629118191840426958 | 200 |    8.236416ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 15:39:17 | 2026033115391768240146623959339 | 200 |      29.523ms |    192.168.65.1 |    POST /api/channel/
+[GIN] 2026/03/31 - 15:39:22 | 2026033115392255892121804799900 | 200 |     3.23975ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 15:39:22 | 2026033115392256810880127078864 | 200 |     14.8135ms |    192.168.65.1 |     GET /api/models
+[INFO] 2026/03/31 - 15:39:27 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"openai/gpt-3.5-turbo"} 
+[GIN] 2026/03/31 - 15:39:28 | 2026033115392797474197008872288 | 200 |  937.298375ms |    192.168.65.1 |     GET /api/channel/test/3?model=openai/gpt-3.5-turbo
+[INFO] 2026/03/31 - 15:39:28 | 2026033115392797474197008872288 | model/log.go:51 [recordLogHelper] record log: &{Id:4 UserId:0 CreatedAt:1774942768 Type:5 Content:渠道 OpenRouter-personal 测试失败，错误：http status code: 402, error message: Insufficient credits. This account never purchased credits. Make sure your key is on the correct account or org, and if so, purchase more at https://openrouter.ai/settings/credits Username: TokenName: ModelName:openai/gpt-3.5-turbo Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:3 RequestId:2026033115392797474197008872288 ElapsedTime:934 IsStream:false SystemPromptReset:false} 
+[INFO] 2026/03/31 - 15:39:41 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"openai/gpt-3.5-turbo"} 
+[GIN] 2026/03/31 - 15:39:42 | 2026033115394197061533850042747 | 200 |  216.605876ms |    192.168.65.1 |     GET /api/channel/test/3?model=openai/gpt-3.5-turbo
+[INFO] 2026/03/31 - 15:39:42 | 2026033115394197061533850042747 | model/log.go:51 [recordLogHelper] record log: &{Id:5 UserId:0 CreatedAt:1774942782 Type:5 Content:渠道 OpenRouter-personal 测试失败，错误：http status code: 402, error message: Insufficient credits. This account never purchased credits. Make sure your key is on the correct account or org, and if so, purchase more at https://openrouter.ai/settings/credits Username: TokenName: ModelName:openai/gpt-3.5-turbo Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:3 RequestId:2026033115394197061533850042747 ElapsedTime:209 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 15:39:50 | 2026033115395090065996737244229 | 200 |    1.058334ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 15:39:50 | 2026033115395090061550964408938 | 200 |     6.46275ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 15:41:11 | 2026033115411118297142162315418 | 200 |   17.552542ms |    192.168.65.1 |    POST /api/channel/
+[GIN] 2026/03/31 - 15:41:13 | 2026033115411378483488046761685 | 200 |   23.861416ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 15:41:13 | 2026033115411380947513091292119 | 200 |    8.230333ms |    192.168.65.1 |     GET /api/models
+[INFO] 2026/03/31 - 15:41:16 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"moonshot-v1-8k"} 
+[GIN] 2026/03/31 - 15:41:18 | 2026033115411661230113222481858 | 200 |  2.168873335s |    192.168.65.1 |     GET /api/channel/test/4?model=moonshot-v1-8k
+[INFO] 2026/03/31 - 15:41:18 | 2026033115411661230113222481858 | model/log.go:51 [recordLogHelper] record log: &{Id:6 UserId:0 CreatedAt:1774942878 Type:5 Content:渠道 Moonshot-personal 测试失败，错误：http status code: 401, error message: Invalid Authentication Username: TokenName: ModelName:moonshot-v1-8k Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:4 RequestId:2026033115411661230113222481858 ElapsedTime:2166 IsStream:false SystemPromptReset:false} 
+[INFO] 2026/03/31 - 15:41:30 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"moonshot-v1-8k"} 
+[GIN] 2026/03/31 - 15:41:31 | 2026033115413070675622264523823 | 200 |  451.140792ms |    192.168.65.1 |     GET /api/channel/test/4?model=moonshot-v1-8k
+[INFO] 2026/03/31 - 15:41:31 | 2026033115413070675622264523823 | model/log.go:51 [recordLogHelper] record log: &{Id:7 UserId:0 CreatedAt:1774942891 Type:5 Content:渠道 Moonshot-personal 测试失败，错误：http status code: 401, error message: Invalid Authentication Username: TokenName: ModelName:moonshot-v1-8k Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:4 RequestId:2026033115413070675622264523823 ElapsedTime:449 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 15:41:34 | 2026033115413473281879321333204 | 200 |     4.89425ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 15:41:34 | 2026033115413473251833414607337 | 200 |    8.457959ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 15:42:34 | 2026033115423482622795976918305 | 200 |     14.2365ms |    192.168.65.1 |    POST /api/channel/
+[GIN] 2026/03/31 - 15:42:37 | 2026033115423712121833551801069 | 200 |       3.051ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 15:42:37 | 2026033115423712425329480108302 | 200 |    9.511125ms |    192.168.65.1 |     GET /api/models
+[INFO] 2026/03/31 - 15:42:39 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"moonshot-v1-8k"} 
+[GIN] 2026/03/31 - 15:42:39 | 202603311542396344004568629842 | 200 |     453.904ms |    192.168.65.1 |     GET /api/channel/test/5?model=moonshot-v1-8k
+[INFO] 2026/03/31 - 15:42:39 | 202603311542396344004568629842 | model/log.go:51 [recordLogHelper] record log: &{Id:8 UserId:0 CreatedAt:1774942959 Type:5 Content:渠道 Moonshot-Kimi-2 测试失败，错误：http status code: 401, error message: Invalid Authentication Username: TokenName: ModelName:moonshot-v1-8k Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:5 RequestId:202603311542396344004568629842 ElapsedTime:451 IsStream:false SystemPromptReset:false} 
+[INFO] 2026/03/31 - 15:42:45 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"moonshot-v1-8k"} 
+[GIN] 2026/03/31 - 15:42:46 | 2026033115424582962229864674072 | 200 |  446.504375ms |    192.168.65.1 |     GET /api/channel/test/5?model=moonshot-v1-8k
+[INFO] 2026/03/31 - 15:42:46 | 2026033115424582962229864674072 | model/log.go:51 [recordLogHelper] record log: &{Id:9 UserId:0 CreatedAt:1774942966 Type:5 Content:渠道 Moonshot-Kimi-2 测试失败，错误：http status code: 401, error message: Invalid Authentication Username: TokenName: ModelName:moonshot-v1-8k Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:5 RequestId:2026033115424582962229864674072 ElapsedTime:444 IsStream:false SystemPromptReset:false} 
+[INFO] 2026/03/31 - 15:48:26 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"openai/gpt-3.5-turbo"} 
+[GIN] 2026/03/31 - 15:48:26 | 2026033115482624508397094615132 | 200 |  668.597167ms |    192.168.65.1 |     GET /api/channel/test/3?model=openai/gpt-3.5-turbo
+[INFO] 2026/03/31 - 15:48:26 | 2026033115482624508397094615132 | model/log.go:51 [recordLogHelper] record log: &{Id:10 UserId:0 CreatedAt:1774943306 Type:5 Content:渠道 OpenRouter-personal 测试失败，错误：http status code: 402, error message: Insufficient credits. This account never purchased credits. Make sure your key is on the correct account or org, and if so, purchase more at https://openrouter.ai/settings/credits Username: TokenName: ModelName:openai/gpt-3.5-turbo Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:3 RequestId:2026033115482624508397094615132 ElapsedTime:648 IsStream:false SystemPromptReset:false} 
+[INFO] 2026/03/31 - 16:08:43 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"openai/gpt-3.5-turbo"} 
+[INFO] 2026/03/31 - 16:08:44 | controller/channel-test.go:165 [testChannel] testing channel #3, response: 
+{"id":"gen-1774944524-SJt1lNhuMbuxfUiVX2Kv","object":"chat.completion","created":1774944524,"model":"openai/gpt-3.5-turbo","provider":"OpenAI","system_fingerprint":null,"choices":[{"index":0,"logprobs":null,"finish_reason":"stop","native_finish_reason":"stop","message":{"role":"assistant","content":"iPhone 13","refusal":null,"reasoning":null}}],"usage":{"prompt_tokens":18,"completion_tokens":3,"total_tokens":21,"cost":0.0000135,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"cache_write_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":0.0000135,"upstream_inference_prompt_cost":0.000009,"upstream_inference_completions_cost":0.0000045},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0,"audio_tokens":0}}} 
+[GIN] 2026/03/31 - 16:08:44 | 2026033116084353317079759613856 | 200 |  1.116807293s |    192.168.65.1 |     GET /api/channel/test/3?model=openai/gpt-3.5-turbo
+[INFO] 2026/03/31 - 16:08:44 | 2026033116084353317079759613856 | model/log.go:51 [recordLogHelper] record log: &{Id:11 UserId:0 CreatedAt:1774944524 Type:5 Content:渠道 OpenRouter-personal 测试成功，响应：iPhone 13 Username: TokenName: ModelName:openai/gpt-3.5-turbo Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:3 RequestId:2026033116084353317079759613856 ElapsedTime:1046 IsStream:false SystemPromptReset:false} 
+[INFO] 2026/03/31 - 16:08:58 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"gpt-3.5-turbo"} 
+[ERROR] 2026/03/31 - 16:08:58 | relay/adaptor/openai/util.go:12 [ErrorWrapper] [unmarshal_response_body_failed]invalid character '<' looking for beginning of value 
+[GIN] 2026/03/31 - 16:08:58 | 2026033116085815187680450540465 | 200 |  542.363792ms |    192.168.65.1 |     GET /api/channel/test/1?model=gpt-3.5-turbo
+[INFO] 2026/03/31 - 16:08:58 | 2026033116085815187680450540465 | model/log.go:51 [recordLogHelper] record log: &{Id:12 UserId:0 CreatedAt:1774944538 Type:5 Content:渠道 Openrouter-personal-api 测试失败，错误：invalid character '<' looking for beginning of value Username: TokenName: ModelName:gpt-3.5-turbo Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:1 RequestId:2026033116085815187680450540465 ElapsedTime:537 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 16:09:06 | 2026033116090680301900269856878 | 200 |   30.235334ms |    192.168.65.1 |  DELETE /api/channel/1
+[GIN] 2026/03/31 - 16:31:28 | 2026033116312849429942952599660 | 200 |   30.668708ms |    192.168.65.1 |  DELETE /api/channel/4
+[GIN] 2026/03/31 - 16:31:37 | 202603311631379027183551691645 | 200 |    1.446209ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 16:31:43 | 2026033116314332120042102102492 | 200 |    16.50375ms |    192.168.65.1 |     GET /api/user/available_models
+[GIN] 2026/03/31 - 16:32:18 | 2026033116321841730367424876340 | 200 |    5.213666ms |    192.168.65.1 |     GET /api/redemption/?p=0
+[GIN] 2026/03/31 - 16:32:45 | 2026033116324531232775687717499 | 200 |     28.4555ms |    192.168.65.1 |    POST /api/redemption/
+[GIN] 2026/03/31 - 16:32:49 | 2026033116324946172154917009731 | 200 |    3.839292ms |    192.168.65.1 |     GET /api/redemption/?p=0
+[GIN] 2026/03/31 - 16:32:55 | 2026033116325537341484467892118 | 200 |    8.765084ms |    192.168.65.1 |     GET /api/user/self
+[GIN] 2026/03/31 - 16:33:03 | 2026033116330389011558455146733 | 200 |    8.714167ms |    192.168.65.1 |     GET /api/redemption/?p=0
+[GIN] 2026/03/31 - 16:33:19 | 20260331163319587284195079442 | 200 |    6.352167ms |    192.168.65.1 |     GET /api/user/self
+[GIN] 2026/03/31 - 16:33:31 | 2026033116333160816343069366999 | 200 |   16.624792ms |    192.168.65.1 |    POST /api/user/topup
+[ERROR] 2026/03/31 - 16:34:35 | model/token.go:68 [ValidateUserToken] CacheGetTokenByKey failed: record not found 
+[ERROR] 2026/03/31 - 16:34:35 | 202603311634352686154208359553 | middleware/utils.go:20 [abortWithMessage] 无效的令牌 
+[GIN] 2026/03/31 - 16:34:35 | 202603311634352686154208359553 | 401 |   14.939458ms |    192.168.65.1 |    POST /v1/chat/completions
+[GIN] 2026/03/31 - 16:35:25 | 2026033116352552943396914244230 | 200 |    8.308875ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 16:35:25 | 2026033116352551818413643597540 | 200 |   19.646875ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 16:35:26 | 2026033116352629529721903895053 | 200 |    1.669625ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 16:35:31 | 2026033116353160471868072511269 | 200 |    6.833917ms |    192.168.65.1 |     GET /api/user/?p=0&order=
+[GIN] 2026/03/31 - 16:35:41 | 2026033116354113696337911368863 | 200 |      7.3585ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 16:35:42 | 2026033116354251387812940654212 | 200 |   15.183291ms |    192.168.65.1 |     GET /api/user/available_models
+[GIN] 2026/03/31 - 16:37:28 | 2026033116372845751330474907425 | 200 |   20.114625ms |    192.168.65.1 |    POST /api/token/
+[GIN] 2026/03/31 - 16:37:31 | 2026033116373118791197212059693 | 200 |     3.64925ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 16:37:51 | 2026033116375198604205079321496 | 200 |        3.96ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 16:37:51 | 2026033116375198618000921615713 | 200 |    5.289292ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 16:37:58 | 2026033116375815102188768222426 | 200 |    1.472833ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 16:37:58 | 2026033116375814055501265459680 | 200 |   19.699792ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 16:37:58 | 2026033116375813469638753322083 | 200 |   35.473584ms |    192.168.65.1 |     GET /api/channel/3
+[GIN] 2026/03/31 - 16:38:10 | 2026033116381059793683786780207 | 200 |    6.243583ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 16:38:10 | 2026033116381059806379585567272 | 200 |   19.029458ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 16:38:15 | 2026033116381552565817290650225 | 200 |    4.654541ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 16:38:15 | 2026033116381552286946469887033 | 200 |    8.023042ms |    192.168.65.1 |     GET /api/channel/3
+[GIN] 2026/03/31 - 16:38:15 | 2026033116381552284063170800657 | 200 |   15.689875ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 16:38:29 | 2026033116382913148780498741304 | 200 |   10.723459ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 16:38:29 | 2026033116382913148788721622483 | 200 |   12.855542ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 16:38:44 | 2026033116384497720763095519234 | 200 |    10.70625ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 16:43:09 | 2026033116430994786354568551608 | 200 |   14.811875ms |    192.168.65.1 |     GET /api/user/self
+[GIN] 2026/03/31 - 16:43:17 | 2026033116431751629592325139274 | 200 |    3.487292ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 16:43:34 | 2026033116433444527595905478701 | 200 |    5.788916ms |    192.168.65.1 |     GET /api/user/dashboard
+[GIN] 2026/03/31 - 16:43:36 | 2026033116433687190771051704782 | 200 |    2.700209ms |    192.168.65.1 |     GET /api/user/?p=0&order=
+[GIN] 2026/03/31 - 16:43:42 | 2026033116434285863533873132402 | 200 |    3.648125ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 16:43:42 | 2026033116434285665417107184741 | 200 |   11.965458ms |    192.168.65.1 |     GET /api/user/1
+[GIN] 2026/03/31 - 16:43:50 | 2026033116435060889850848337408 | 200 |    6.734625ms |    192.168.65.1 |     GET /api/user/?p=0&order=
+[GIN] 2026/03/31 - 16:44:06 | 2026033116440660069062639655826 | 200 |    5.532875ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[ERROR] 2026/03/31 - 16:47:56 | 2026033116475667101055397780828 | middleware/utils.go:20 [abortWithMessage] 该令牌无权使用模型：gpt-4o-mini 
+[GIN] 2026/03/31 - 16:47:56 | 2026033116475667101055397780828 | 403 |   14.810625ms |    192.168.65.1 |    POST /v1/chat/completions
+[GIN] 2026/03/31 - 16:48:24 | 2026033116482470196971816220046 | 200 |   17.879958ms |    192.168.65.1 |     GET /api/user/available_models
+[GIN] 2026/03/31 - 16:48:24 | 2026033116482469925584345055449 | 200 |      23.594ms |    192.168.65.1 |     GET /api/token/1
+[GIN] 2026/03/31 - 16:48:40 | 2026033116484072628404526953379 | 200 |   27.218375ms |    192.168.65.1 |     PUT /api/token/
+[ERROR] 2026/03/31 - 16:48:47 | 2026033116484740843913283811598 | middleware/utils.go:20 [abortWithMessage] 当前分组 default 下对于模型 gpt-4o-mini 无可用渠道 
+[GIN] 2026/03/31 - 16:48:47 | 2026033116484740843913283811598 | 503 |   12.536125ms |    192.168.65.1 |    POST /v1/chat/completions
+[GIN] 2026/03/31 - 16:49:23 | 2026033116492366457976016829564 | 200 |    5.655416ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 16:49:23 | 2026033116492366437796837007204 | 200 |   10.235917ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 16:49:30 | 2026033116493066859080509576604 | 200 |     652.791µs |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 16:49:30 | 2026033116493066575872177379265 | 200 |    7.096125ms |    192.168.65.1 |     GET /api/channel/3
+[GIN] 2026/03/31 - 16:49:30 | 2026033116493066814526332568429 | 200 |       5.496ms |    192.168.65.1 |     GET /api/channel/models
+[ERROR] 2026/03/31 - 16:51:05 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: qwen/qwen-vl-plus:free 
+[INFO] 2026/03/31 - 16:51:05 | 2026033116510526181750192056137 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 500000000000000, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 16:51:06 | 2026033116510526181750192056137 | 404 |  995.688209ms |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 16:51:06 | 2026033116510526181750192056137 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for qwen/qwen-vl-plus:free. 
+[ERROR] 2026/03/31 - 16:55:10 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/o1-mini 
+[INFO] 2026/03/31 - 16:55:10 | 2026033116551046210829593052989 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 500000000000000, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 16:55:11 | 2026033116551046210829593052989 | 404 |  748.451042ms |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 16:55:11 | 2026033116551046210829593052989 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for openai/o1-mini. 
+[ERROR] 2026/03/31 - 16:56:58 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: qwen/qwen-vl-plus:free 
+[INFO] 2026/03/31 - 16:56:58 | 2026033116565821694205388397087 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 500000000000000, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 16:56:59 | 2026033116565821694205388397087 | 404 |   933.43225ms |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 16:56:59 | 2026033116565821694205388397087 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for qwen/qwen-vl-plus:free. 
+[ERROR] 2026/03/31 - 16:57:20 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: qwen/qwen-vl-plus:free 
+[INFO] 2026/03/31 - 16:57:20 | 2026033116572091758134278552900 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 500000000000000, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 16:57:21 | 2026033116572091758134278552900 | 404 |  222.973542ms |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 16:57:21 | 2026033116572091758134278552900 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for qwen/qwen-vl-plus:free. 
+[GIN] 2026/03/31 - 17:03:27 | 2026033117032799443042822389297 | 200 |    2.847209ms |    192.168.65.1 |     GET /
+[ERROR] 2026/03/31 - 17:04:25 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: deepseek/deepseek-r1:free 
+[INFO] 2026/03/31 - 17:04:25 | 2026033117042583168563575383015 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 500000000000000, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 17:04:26 | 2026033117042583168563575383015 | 404 |  942.982334ms |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 17:04:26 | 2026033117042583168563575383015 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for deepseek/deepseek-r1:free. 
+[ERROR] 2026/03/31 - 17:04:26 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: qwen/qwen-vl-plus:free 
+[INFO] 2026/03/31 - 17:04:26 | 2026033117042699560601116943849 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 500000000000000, trusted and no need to pre-consume 
+[ERROR] 2026/03/31 - 17:04:27 | 2026033117042699560601116943849 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for qwen/qwen-vl-plus:free. 
+[GIN] 2026/03/31 - 17:04:27 | 2026033117042699560601116943849 | 404 |  204.835833ms |    192.168.65.1 |    POST /v1/chat/completions
+[GIN] 2026/03/31 - 17:04:27 | 2026033117042724951446956325278 | 200 |    4.358375ms |    192.168.65.1 |     GET /v1/models
+[GIN] 2026/03/31 - 17:05:12 | 2026033117051189582058733918698 | 200 |   119.96625ms |    192.168.65.1 |    POST /api/user/login
+[ERROR] 2026/03/31 - 17:05:15 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/chatgpt-4o-latest 
+[INFO] 2026/03/31 - 17:05:15 | 2026033117051569933471448497197 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 500000000000000, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 17:05:15 | 2026033117051569933471448497197 | 404 |   214.50575ms |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 17:05:15 | 2026033117051569933471448497197 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for openai/chatgpt-4o-latest. 
+[GIN] 2026/03/31 - 17:05:47 | 2026033117054712763784062634001 | 200 |    9.130916ms |    192.168.65.1 |     GET /api/token/
+[GIN] 2026/03/31 - 17:05:49 | 2026033117054917246971648106758 | 200 |    7.500875ms |    192.168.65.1 |     GET /api/channel/
+[GIN] 2026/03/31 - 17:06:44 | 2026033117064424011708884725089 | 200 |    5.587625ms |    192.168.65.1 |     GET /api/channel/3
+[GIN] 2026/03/31 - 17:06:46 | 202603311706463062275673924095 | 404 |    5.814208ms |    192.168.65.1 |    POST /api/channel/test/3
+[ERROR] 2026/03/31 - 17:07:04 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: MiniMax-Text-01 
+[ERROR] 2026/03/31 - 17:07:04 | relay/adaptor/openai/token.go:60 [getTokenEncoder] failed to get token encoder for model moonshot-v1-8k: no encoding for model moonshot-v1-8k, using encoder for gpt-3.5-turbo 
+[INFO] 2026/03/31 - 17:07:04 | 2026033117070458494487553592503 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 500000000000000, trusted and no need to pre-consume 
+[INFO] 2026/03/31 - 17:07:04 | 2026033117070458495179227817897 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 500000000000000, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 17:07:06 | 2026033117070458495179227817897 | 401 |  2.185162501s |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 17:07:06 | 2026033117070458495179227817897 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 5, user id: 1): Invalid Authentication 
+[GIN] 2026/03/31 - 17:07:07 | 2026033117070458494487553592503 | 200 |  2.577064501s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 17:07:07 | 2026033117070458494487553592503 | model/log.go:51 [recordLogHelper] record log: &{Id:13 UserId:1 CreatedAt:1774948027 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:MiniMax-Text-01 Quota:240 PromptTokens:8 CompletionTokens:0 ChannelId:2 RequestId:2026033117070458494487553592503 ElapsedTime:2503 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 17:07:35 | 202603311707351760116795869008 | 200 |   10.081667ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 17:07:35 | 202603311707352945233406356120 | 200 |    5.111875ms |    192.168.65.1 |     GET /api/models
+[ERROR] 2026/03/31 - 17:09:04 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: qwen/qwen-vl-plus:free 
+[INFO] 2026/03/31 - 17:09:04 | 2026033117090454230104250109980 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999999760, trusted and no need to pre-consume 
+[ERROR] 2026/03/31 - 17:09:05 | 2026033117090454230104250109980 | controller/relay.go:67 [Relay] relay error happen, status code is 404, won't retry in this case 
+[GIN] 2026/03/31 - 17:09:05 | 2026033117090454230104250109980 | 404 |    1.0145275s |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 17:09:05 | 2026033117090454230104250109980 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for qwen/qwen-vl-plus:free. 
+[ERROR] 2026/03/31 - 17:09:14 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/chatgpt-4o-latest 
+[INFO] 2026/03/31 - 17:09:14 | 2026033117091495750100592327298 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999999760, trusted and no need to pre-consume 
+[ERROR] 2026/03/31 - 17:09:15 | 2026033117091495750100592327298 | controller/relay.go:67 [Relay] relay error happen, status code is 404, won't retry in this case 
+[GIN] 2026/03/31 - 17:09:15 | 2026033117091495750100592327298 | 404 |  207.060167ms |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 17:09:15 | 2026033117091495750100592327298 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for openai/chatgpt-4o-latest. 
+[GIN] 2026/03/31 - 17:11:39 | 2026033117113924903800232794109 | 200 |      3.7105ms |    192.168.65.1 |     GET /channel
+[GIN] 2026/03/31 - 17:11:39 | 2026033117113962388025390044064 | 200 |    4.333333ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 17:11:39 | 2026033117113962700383667059740 | 200 |    7.389959ms |    192.168.65.1 |     GET /api/status
+[GIN] 2026/03/31 - 17:11:39 | 2026033117113962327604491721967 | 200 |   17.016125ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 17:12:04 | 2026033117120310091562594365094 | 200 |  952.342792ms |    192.168.65.1 |     GET /api/channel/update_balance/3
+[GIN] 2026/03/31 - 17:12:38 | 2026033117123860060816981556050 | 200 |    1.385375ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 17:12:38 | 2026033117123859143216939609723 | 200 |     19.0665ms |    192.168.65.1 |     GET /api/channel/3
+[GIN] 2026/03/31 - 17:12:38 | 2026033117123860026866941266720 | 200 |   14.549084ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 17:12:43 | 2026033117124322085487988561074 | 200 |      2.5285ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 17:12:43 | 2026033117124322050633881830663 | 200 |    8.020833ms |    192.168.65.1 |     GET /api/channel/?p=0
+[INFO] 2026/03/31 - 17:13:28 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"openai/gpt-3.5-turbo"} 
+[INFO] 2026/03/31 - 17:13:28 | controller/channel-test.go:165 [testChannel] testing channel #3, response: 
+{"id":"gen-1774948408-dNSpvkcDacQSNN4kKd2b","object":"chat.completion","created":1774948408,"model":"openai/gpt-3.5-turbo","provider":"OpenAI","system_fingerprint":null,"choices":[{"index":0,"logprobs":null,"finish_reason":"stop","native_finish_reason":"stop","message":{"role":"assistant","content":"iPhone 13 Pro Max","refusal":null,"reasoning":null}}],"usage":{"prompt_tokens":18,"completion_tokens":5,"total_tokens":23,"cost":0.0000165,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"cache_write_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":0.0000165,"upstream_inference_prompt_cost":0.000009,"upstream_inference_completions_cost":0.0000075},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0,"audio_tokens":0}}} 
+[GIN] 2026/03/31 - 17:13:28 | 2026033117132814412830318919910 | 200 |  649.624042ms |    192.168.65.1 |     GET /api/channel/test/3?model=openai/gpt-3.5-turbo
+[INFO] 2026/03/31 - 17:13:28 | 2026033117132814412830318919910 | model/log.go:51 [recordLogHelper] record log: &{Id:14 UserId:0 CreatedAt:1774948408 Type:5 Content:渠道 OpenRouter-personal 测试成功，响应：iPhone 13 Pro Max Username: TokenName: ModelName:openai/gpt-3.5-turbo Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:3 RequestId:2026033117132814412830318919910 ElapsedTime:643 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 17:13:36 | 2026033117133616696137611016199 | 200 |    2.695958ms |    192.168.65.1 |     GET /channel
+[GIN] 2026/03/31 - 17:13:36 | 2026033117133629934908437692991 | 200 |    5.382792ms |    192.168.65.1 |     GET /api/status
+[GIN] 2026/03/31 - 17:13:36 | 2026033117133629634479388397142 | 200 |    9.450667ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 17:13:36 | 2026033117133629879354344028911 | 200 |   11.511042ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 17:13:37 | 2026033117133717832996067184818 | 200 |  203.593167ms |    192.168.65.1 |     GET /api/channel/update_balance/3
+[GIN] 2026/03/31 - 17:13:40 | 2026033117134033098867016372257 | 200 |  207.664917ms |    192.168.65.1 |     GET /api/channel/update_balance/3
+[ERROR] 2026/03/31 - 17:14:35 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[ERROR] 2026/03/31 - 17:14:35 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 17:14:35 | 2026033117143525524629232798806 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999999760, trusted and no need to pre-consume 
+[INFO] 2026/03/31 - 17:14:35 | 2026033117143525628216782811335 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999999760, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 17:14:35 | 2026033117143525628216782811335 | 200 |  647.956917ms |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 17:14:35 | 2026033117143525628216782811335 | model/log.go:51 [recordLogHelper] record log: &{Id:15 UserId:1 CreatedAt:1774948475 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:2026033117143525628216782811335 ElapsedTime:658 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 17:14:35 | 2026033117143525524629232798806 | 200 |  698.209625ms |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 17:14:35 | 2026033117143525524629232798806 | model/log.go:51 [recordLogHelper] record log: &{Id:16 UserId:1 CreatedAt:1774948475 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:2026033117143525524629232798806 ElapsedTime:695 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 17:15:16 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: qwen/qwen-vl-plus 
+[INFO] 2026/03/31 - 17:15:16 | 2026033117151663423013198163625 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999998740, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 17:15:17 | 2026033117151663423013198163625 | 200 |   628.81125ms |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 17:15:17 | 2026033117151663423013198163625 | model/log.go:51 [recordLogHelper] record log: &{Id:17 UserId:1 CreatedAt:1774948517 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:qwen/qwen-vl-plus Quota:630 PromptTokens:9 CompletionTokens:12 ChannelId:3 RequestId:2026033117151663423013198163625 ElapsedTime:638 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 17:15:31 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: deepseek/deepseek-r1 
+[ERROR] 2026/03/31 - 17:15:31 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: deepseek/deepseek-r1:free 
+[INFO] 2026/03/31 - 17:15:31 | 202603311715319551376394484391 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999998110, trusted and no need to pre-consume 
+[INFO] 2026/03/31 - 17:15:31 | 202603311715319546118089365346 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999998110, trusted and no need to pre-consume 
+[ERROR] 2026/03/31 - 17:15:31 | 202603311715319546118089365346 | controller/relay.go:67 [Relay] relay error happen, status code is 404, won't retry in this case 
+[GIN] 2026/03/31 - 17:15:31 | 202603311715319546118089365346 | 404 |  216.246833ms |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 17:15:31 | 202603311715319546118089365346 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for deepseek/deepseek-r1:free. 
+[GIN] 2026/03/31 - 17:15:36 | 202603311715319551376394484391 | 200 |  5.156629544s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 17:15:36 | 202603311715319551376394484391 | model/log.go:51 [recordLogHelper] record log: &{Id:18 UserId:1 CreatedAt:1774948536 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:deepseek/deepseek-r1 Quota:2730 PromptTokens:11 CompletionTokens:80 ChannelId:3 RequestId:202603311715319551376394484391 ElapsedTime:5170 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 17:16:29 | 2026033117162992728888753178514 | middleware/utils.go:20 [abortWithMessage] 当前分组 default 下对于模型 qwen/qwen-vl-plus 无可用渠道 
+[GIN] 2026/03/31 - 17:16:29 | 2026033117162992728888753178514 | 503 |    6.729833ms |    192.168.65.1 |    POST /v1/chat/completions
+[GIN] 2026/03/31 - 17:18:23 | 2026033117182352258050954281679 | 200 |    3.909125ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 17:18:23 | 2026033117182352219230180805758 | 200 |   17.103666ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 17:18:23 | 2026033117182352194855140034946 | 200 |   19.390125ms |    192.168.65.1 |     GET /api/channel/3
+[ERROR] 2026/03/31 - 17:18:43 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 17:18:43 | 2026033117184351824975405293442 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999995380, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 17:18:44 | 2026033117184351824975405293442 | 200 |   1.31954625s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 17:18:44 | 2026033117184351824975405293442 | model/log.go:51 [recordLogHelper] record log: &{Id:19 UserId:1 CreatedAt:1774948724 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:2026033117184351824975405293442 ElapsedTime:1316 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 17:20:16 | 2026033117201680720925678997534 | middleware/utils.go:20 [abortWithMessage] 当前分组 default 下对于模型 qwen/qwen-vl-plus 无可用渠道 
+[GIN] 2026/03/31 - 17:20:16 | 2026033117201680720925678997534 | 503 |      13.169ms |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 17:21:13 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/o1-mini 
+[INFO] 2026/03/31 - 17:21:13 | 2026033117211391162096336422133 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999994870, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 17:21:14 | 2026033117211391162096336422133 | 404 |  928.096625ms |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 17:21:14 | 2026033117211391162096336422133 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1): No endpoints found for openai/o1-mini. 
+[ERROR] 2026/03/31 - 17:21:52 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 17:21:52 | 2026033117215216017800975428741 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999994870, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 17:21:53 | 2026033117215216017800975428741 | 200 |  1.100635333s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 17:21:53 | 2026033117215216017800975428741 | model/log.go:51 [recordLogHelper] record log: &{Id:20 UserId:1 CreatedAt:1774948913 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:2026033117215216017800975428741 ElapsedTime:1112 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 17:27:02 | 2026033117270218805805596801261 | 200 |    2.810375ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 17:27:02 | 2026033117270218805809745606115 | 200 |   16.143125ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 17:27:03 | 202603311727036077122240178768 | 200 |    2.439791ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[ERROR] 2026/03/31 - 17:27:20 | 202603311727206542642409814795 | middleware/utils.go:20 [abortWithMessage] 当前分组 default 下对于模型 qwen/qwen-vl-plus 无可用渠道 
+[GIN] 2026/03/31 - 17:27:20 | 202603311727206542642409814795 | 503 |    5.313041ms |    192.168.65.1 |    POST /v1/chat/completions
+[GIN] 2026/03/31 - 17:28:59 | 2026033117285921925172035727715 | 200 |   17.595334ms |    192.168.65.1 |     GET /api/token/1
+[GIN] 2026/03/31 - 17:28:59 | 2026033117285922197192983855210 | 200 |   22.679333ms |    192.168.65.1 |     GET /api/user/available_models
+[GIN] 2026/03/31 - 17:29:02 | 2026033117290246241268066658435 | 200 |    1.962083ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 17:29:02 | 2026033117290246234051313129761 | 200 |    3.085167ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 17:29:05 | 2026033117290538327854299983165 | 200 |    1.611917ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 17:29:05 | 2026033117290538189691728979799 | 200 |     11.6725ms |    192.168.65.1 |     GET /api/channel/3
+[GIN] 2026/03/31 - 17:29:05 | 2026033117290538241625199668441 | 200 |   23.957334ms |    192.168.65.1 |     GET /api/channel/models
+[GIN] 2026/03/31 - 17:30:09 | 2026033117300935382354407398302 | 200 |     29.7765ms |    192.168.65.1 |     PUT /api/channel/
+[GIN] 2026/03/31 - 17:30:18 | 2026033117301885428050755963968 | 200 |    5.756375ms |    192.168.65.1 |     GET /channel/edit/3
+[GIN] 2026/03/31 - 17:30:19 | 2026033117301911371700732081839 | 200 |      4.7295ms |    192.168.65.1 |     GET /api/group/
+[GIN] 2026/03/31 - 17:30:19 | 2026033117301911336346543207818 | 200 |      11.386ms |    192.168.65.1 |     GET /api/channel/3
+[GIN] 2026/03/31 - 17:30:19 | 2026033117301911669871512931725 | 200 |   13.650375ms |    192.168.65.1 |     GET /api/status
+[GIN] 2026/03/31 - 17:30:19 | 2026033117301911381171510014867 | 200 |   21.368958ms |    192.168.65.1 |     GET /api/channel/models
+[ERROR] 2026/03/31 - 17:30:27 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: qwen/qwen-vl-plus 
+[INFO] 2026/03/31 - 17:30:27 | 2026033117302762948634466025039 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999994360, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 17:30:28 | 2026033117302762948634466025039 | 200 |  1.297854084s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 17:30:28 | 2026033117302762948634466025039 | model/log.go:51 [recordLogHelper] record log: &{Id:21 UserId:1 CreatedAt:1774949428 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:qwen/qwen-vl-plus Quota:630 PromptTokens:9 CompletionTokens:12 ChannelId:3 RequestId:2026033117302762948634466025039 ElapsedTime:1298 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 20:17:15 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: qwen/qwen-vl-plus 
+[INFO] 2026/03/31 - 20:17:15 | 2026033120171573001250451025136 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999993730, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 20:17:17 | 2026033120171573001250451025136 | 200 |  1.650750834s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 20:17:17 | 2026033120171573001250451025136 | model/log.go:51 [recordLogHelper] record log: &{Id:22 UserId:1 CreatedAt:1774959437 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:qwen/qwen-vl-plus Quota:630 PromptTokens:9 CompletionTokens:12 ChannelId:3 RequestId:2026033120171573001250451025136 ElapsedTime:1631 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 21:17:38 | 2026033121173816503416708455050 | 200 |     38.8435ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 21:17:38 | 2026033121173816504237550636338 | 200 |   59.625958ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 21:17:41 | 202603312117413930829394030818 | 200 |    2.583292ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[ERROR] 2026/03/31 - 21:23:43 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:23:43 | 202603312123439352758671633289 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999993100, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 21:23:44 | 202603312123439352758671633289 | 200 |  1.413005251s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 21:23:44 | 202603312123439352758671633289 | model/log.go:51 [recordLogHelper] record log: &{Id:23 UserId:1 CreatedAt:1774963424 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:202603312123439352758671633289 ElapsedTime:1402 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 21:25:11 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:25:11 | 2026033121251151454846083053028 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999992590, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 21:25:12 | 2026033121251151454846083053028 | 200 |  690.528333ms |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 21:25:12 | 2026033121251151454846083053028 | model/log.go:51 [recordLogHelper] record log: &{Id:24 UserId:1 CreatedAt:1774963512 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:2026033121251151454846083053028 ElapsedTime:697 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 21:28:45 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:28:45 | 2026033121284546371792039994217 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999992080, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 21:28:46 | 2026033121284546371792039994217 | 200 |  1.293244917s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 21:28:46 | 2026033121284546371792039994217 | model/log.go:51 [recordLogHelper] record log: &{Id:25 UserId:1 CreatedAt:1774963726 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:2026033121284546371792039994217 ElapsedTime:1300 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 21:31:05 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:31:05 | 2026033121310586401826328940358 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999991570, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 21:31:07 | 2026033121310586401826328940358 | 200 |  1.469869209s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 21:31:07 | 2026033121310586401826328940358 | model/log.go:51 [recordLogHelper] record log: &{Id:26 UserId:1 CreatedAt:1774963867 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:2026033121310586401826328940358 ElapsedTime:1480 IsStream:false SystemPromptReset:false} 
+[GIN] 2026/03/31 - 21:33:03 | 2026033121330360391788726455960 | 200 |    3.073416ms |    192.168.65.1 |     GET /token
+[GIN] 2026/03/31 - 21:33:04 | 202603312133045415422103457952 | 200 |    1.382875ms |    192.168.65.1 |     GET /api/status
+[GIN] 2026/03/31 - 21:33:04 | 202603312133045297038763362309 | 200 |   13.204958ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[ERROR] 2026/03/31 - 21:35:49 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:35:49 | 2026033121354974948221472979475 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999991060, trusted and no need to pre-consume 
+[ERROR] 2026/03/31 - 21:36:42 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:36:42 | 2026033121364244240266934778029 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999991060, trusted and no need to pre-consume 
+[ERROR] 2026/03/31 - 21:37:23 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:37:23 | 2026033121372375731300732459101 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999991060, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 21:37:36 | 2026033121373688474851499325368 | 200 |    1.816791ms |    192.168.65.1 |     GET /token
+[GIN] 2026/03/31 - 21:37:37 | 202603312137372892947291149144 | 200 |      4.4425ms |    192.168.65.1 |     GET /api/status
+[GIN] 2026/03/31 - 21:37:37 | 202603312137372882938980472751 | 200 |    10.89475ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 21:37:39 | 2026033121373919630066726846810 | 200 |    7.596459ms |    192.168.65.1 |     GET /token
+[GIN] 2026/03/31 - 21:37:39 | 2026033121373932441170966851695 | 200 |     7.24875ms |    192.168.65.1 |     GET /api/status
+[GIN] 2026/03/31 - 21:37:39 | 2026033121373932375487514486544 | 200 |   17.634125ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 21:37:41 | 2026033121374142068991858517769 | 200 |    1.247833ms |    192.168.65.1 |     GET /token
+[GIN] 2026/03/31 - 21:37:41 | 2026033121374146986075141690151 | 200 |   41.792625ms |    192.168.65.1 |     GET /static/css/main.722059cf.css
+[GIN] 2026/03/31 - 21:37:41 | 2026033121374146784496064332338 | 200 |   72.772125ms |    192.168.65.1 |     GET /static/js/main.60bacb1b.js
+[GIN] 2026/03/31 - 21:37:41 | 2026033121374178499591873327991 | 200 |    1.450625ms |    192.168.65.1 |     GET /logo.png
+[GIN] 2026/03/31 - 21:37:41 | 2026033121374178701975202554147 | 200 |    4.066083ms |    192.168.65.1 |     GET /static/media/icons.38c6d8bab26db77d8c80.woff2
+[GIN] 2026/03/31 - 21:37:41 | 2026033121374180044866892648789 | 200 |    3.373916ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 21:37:41 | 2026033121374180044446092648789 | 200 |     1.68125ms |    192.168.65.1 |     GET /api/status
+[GIN] 2026/03/31 - 21:37:42 | 202603312137427952487795365812 | 200 |     582.667µs |    192.168.65.1 |     GET /logo.png
+[ERROR] 2026/03/31 - 21:39:12 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:39:12 | 2026033121391199186529341738442 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999991060, trusted and no need to pre-consume 
+[ERROR] 2026/03/31 - 21:40:16 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:40:16 | 2026033121401650011292000042432 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999991060, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 21:42:48 | 2026033121424810546121363337295 | 200 |    6.120417ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 21:42:48 | 2026033121424810773817186939117 | 200 |   14.084625ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 21:42:51 | 202603312142513694588109538502 | 200 |    1.246959ms |    192.168.65.1 |     GET /channel
+[GIN] 2026/03/31 - 21:42:51 | 2026033121425117944929890407286 | 200 |    5.283208ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 21:42:51 | 2026033121425117466800672723275 | 200 |   12.428333ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 21:42:51 | 2026033121425118433533920130258 | 200 |    5.777958ms |    192.168.65.1 |     GET /api/status
+[INFO] 2026/03/31 - 21:42:52 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"openai/gpt-3.5-turbo"} 
+[GIN] 2026/03/31 - 21:43:02 | 2026033121430245234892890959782 | 200 |  217.126042ms |    192.168.65.1 |     GET /api/channel/update_balance/3
+[GIN] 2026/03/31 - 21:43:20 | 2026033121432062891513186528678 | 200 |    26.71775ms |    192.168.65.1 |     PUT /api/channel/
+[GIN] 2026/03/31 - 21:43:23 | 2026033121432366537696695990970 | 200 |     14.5855ms |    192.168.65.1 |     PUT /api/channel/
+[INFO] 2026/03/31 - 21:43:31 | controller/channel-test.go:131 [testChannel] {"messages":[{"role":"user","content":"Output only your specific model name with no additional text."}],"model":"openai/gpt-3.5-turbo"} 
+[GIN] 2026/03/31 - 21:43:39 | 2026033121433949845087536462592 | 200 |    7.231292ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 21:43:41 | 2026033121434133448171051862132 | 200 |     2.25025ms |    192.168.65.1 |     GET /api/channel/?p=0
+[GIN] 2026/03/31 - 21:43:41 | 2026033121434133535704339180392 | 200 |     2.28325ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 21:43:42 | 2026033121434238086079331280356 | 200 |    3.574792ms |    192.168.65.1 |     GET /api/token/?p=0&order=
+[GIN] 2026/03/31 - 21:43:44 | 20260331214344519983684131513 | 200 |    4.862083ms |    192.168.65.1 |     GET /api/redemption/?p=0
+[GIN] 2026/03/31 - 21:43:44 | 2026033121434466619937815712626 | 200 |    2.696208ms |    192.168.65.1 |     GET /api/user/self
+[GIN] 2026/03/31 - 21:43:46 | 2026033121434632754462941902054 | 200 |    1.541084ms |    192.168.65.1 |     GET /api/user/?p=0&order=
+[GIN] 2026/03/31 - 21:43:53 | 2026033121435316064871598876738 | 200 |    6.881042ms |    192.168.65.1 |     GET /api/models
+[GIN] 2026/03/31 - 21:43:53 | 2026033121435315814734053175429 | 200 |   17.381917ms |    192.168.65.1 |     GET /api/channel/?p=0
+[ERROR] 2026/03/31 - 21:44:19 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:44:19 | 2026033121441971723646447473979 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999991060, trusted and no need to pre-consume 
+[ERROR] 2026/03/31 - 21:51:59 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 21:51:59 | 202603312151598292876088734485 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999991060, trusted and no need to pre-consume 
+[ERROR] 2026/03/31 - 22:21:48 | 2026033121391199186529341738442 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1):  
+[GIN] 2026/03/31 - 22:21:48 | 202603312151598292876088734485 | 502 | 29m49.040789148s |    192.168.65.1 |    POST /v1/chat/completions
+[GIN] 2026/03/31 - 22:21:48 | 2026033121401650011292000042432 | 502 | 41m31.618884384s |    192.168.65.1 |    POST /v1/chat/completions
+[GIN] 2026/03/31 - 22:21:48 | 2026033121354974948221472979475 | 502 | 45m58.366882295s |    192.168.65.1 |    POST /v1/chat/completions
+[GIN] 2026/03/31 - 22:21:48 | 2026033121364244240266934778029 | 502 | 45m5.675272605s |    192.168.65.1 |    POST /v1/chat/completions
+[GIN] 2026/03/31 - 22:21:48 | 2026033121391199186529341738442 | 502 | 42m36.127424121s |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 22:21:48 | 2026033121354974948221472979475 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1):  
+[ERROR] 2026/03/31 - 22:21:48 | 202603312151598292876088734485 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1):  
+[ERROR] 2026/03/31 - 22:21:48 | 2026033121364244240266934778029 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1):  
+[ERROR] 2026/03/31 - 22:21:48 | 2026033121401650011292000042432 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1):  
+[GIN] 2026/03/31 - 22:21:48 | 2026033121372375731300732459101 | 502 | 44m24.360604878s |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 22:21:48 | 2026033121372375731300732459101 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1):  
+[GIN] 2026/03/31 - 22:21:48 | 2026033121441971723646447473979 | 502 | 37m28.405063565s |    192.168.65.1 |    POST /v1/chat/completions
+[ERROR] 2026/03/31 - 22:21:48 | 2026033121441971723646447473979 | controller/relay.go:125 [processChannelRelayError] relay error (channel id 3, user id: 1):  
+[GIN] 2026/03/31 - 22:21:48 | 2026033121425257887654835987528 | 200 | 38m55.552331812s |    192.168.65.1 |     GET /api/channel/test/3?model=openai/gpt-3.5-turbo
+[GIN] 2026/03/31 - 22:21:48 | 2026033121433128370701114264414 | 200 | 38m16.847553711s |    192.168.65.1 |     GET /api/channel/test/3?model=openai/gpt-3.5-turbo
+[INFO] 2026/03/31 - 22:21:48 | 2026033121433128370701114264414 | model/log.go:51 [recordLogHelper] record log: &{Id:27 UserId:0 CreatedAt:1774966908 Type:5 Content:渠道 OpenRouter-personal 测试失败，错误：http status code: 502 Username: TokenName: ModelName:openai/gpt-3.5-turbo Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:3 RequestId:2026033121433128370701114264414 ElapsedTime:2296827 IsStream:false SystemPromptReset:false} 
+[INFO] 2026/03/31 - 22:21:48 | 2026033121425257887654835987528 | model/log.go:51 [recordLogHelper] record log: &{Id:28 UserId:0 CreatedAt:1774966908 Type:5 Content:渠道 OpenRouter-personal 测试失败，错误：http status code: 502 Username: TokenName: ModelName:openai/gpt-3.5-turbo Quota:0 PromptTokens:0 CompletionTokens:0 ChannelId:3 RequestId:2026033121425257887654835987528 ElapsedTime:2335533 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 23:02:37 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 23:02:37 | 2026033123023775836026390919768 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999991060, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 23:02:39 | 2026033123023775836026390919768 | 200 |  1.386310625s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 23:02:39 | 2026033123023775836026390919768 | model/log.go:51 [recordLogHelper] record log: &{Id:29 UserId:1 CreatedAt:1774969359 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:2026033123023775836026390919768 ElapsedTime:1366 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 23:02:56 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 23:02:56 | 2026033123025691584588347113620 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999990550, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 23:02:57 | 2026033123025691584588347113620 | 200 |  624.021375ms |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 23:02:57 | 2026033123025691584588347113620 | model/log.go:51 [recordLogHelper] record log: &{Id:30 UserId:1 CreatedAt:1774969377 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:2026033123025691584588347113620 ElapsedTime:646 IsStream:false SystemPromptReset:false} 
+[ERROR] 2026/03/31 - 23:06:00 | relay/billing/ratio/model.go:460 [GetModelRatio] model ratio not found: openai/gpt-3.5-turbo 
+[INFO] 2026/03/31 - 23:06:00 | 2026033123060096359763539713289 | relay/controller/helper.go:86 [preConsumeQuota] user 1 has enough quota 499999999990040, trusted and no need to pre-consume 
+[GIN] 2026/03/31 - 23:06:02 | 2026033123060096359763539713289 | 200 |  1.353857917s |    192.168.65.1 |    POST /v1/chat/completions
+[INFO] 2026/03/31 - 23:06:02 | 2026033123060096359763539713289 | model/log.go:51 [recordLogHelper] record log: &{Id:31 UserId:1 CreatedAt:1774969562 Type:2 Content:倍率：30.00 × 1.00 × 1.00 Username:root TokenName:token-demo-20 ModelName:openai/gpt-3.5-turbo Quota:510 PromptTokens:8 CompletionTokens:9 ChannelId:3 RequestId:2026033123060096359763539713289 ElapsedTime:1354 IsStream:false SystemPromptReset:false} 

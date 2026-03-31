@@ -1,0 +1,17 @@
+services:
+  one-api:
+    image: justsong/one-api:latest
+    container_name: one-api
+    # 关键点：强制指定平台为 amd64，解决 Mac 芯片兼容性问题
+    platform: linux/amd64
+    restart: always
+    command: --log-dir /app/logs
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./data:/data
+      - ./logs:/app/logs
+    environment:
+      - TZ=Asia/Shanghai
+      - NODE_TYPE=master
+      - SESSION_SECRET=secumesh_secret_888 # 建议换成复杂的随机字符串
