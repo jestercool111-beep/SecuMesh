@@ -26,6 +26,7 @@ function createTestConfig(overrides: Partial<AppConfig> = {}): AppConfig {
     upstreamBaseUrl: '',
     upstreamApiKey: undefined,
     internalApiKeys: new Set(['internal-test-key']),
+    adminApiKeys: new Set(),
     sessionStoreDriver: 'memory',
     allowedModels: new Set(),
     blockOnInjection: false,
@@ -406,6 +407,104 @@ Deno.test('chat completions persists audit logs to file when configured', async 
   await new Promise((resolve) => setTimeout(resolve, 20));
   const content = await Deno.readTextFile(path);
   assert(content.includes('"route":"/v1/chat/completions"'), 'Expected persisted audit entry');
+  assert(content.includes('"findingsCount":0'), 'Expected audit record to include findingsCount');
+});
+
+Deno.test('chat completions normalizes upstream route-not-found errors and audits them', async () => {
+  const directory = await Deno.makeTempDir({ dir: '/tmp', prefix: 'secumesh-upstream-error-' });
+  const path = `${directory}/audit.jsonl`;
+  const handler = createHandler(
+    createTestConfig({
+      upstreamBaseUrl: 'https://upstream.test',
+      auditLogPath: path,
+      enableConsoleAudit: false,
+    }),
+    {
+      fetchImpl: async () =>
+        new Response(
+          JSON.stringify({
+            error: {
+              message: 'No endpoints found for qwen/qwen-vl-plus:free.',
+              type: '',
+              code: 404,
+            },
+          }),
+          {
+            status: 404,
+            headers: {
+              'content-type': 'application/json; charset=utf-8',
+            },
+          },
+        ),
+    },
+  );
+
+  const response = await invokeGateway(handler, '/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-session-id': 'session-upstream-error',
+    },
+    body: JSON.stringify({
+      model: 'qwen/qwen-vl-plus:free',
+      user: 'user-001',
+      messages: [{ role: 'user', content: 'hello' }],
+    }),
+  });
+
+  const payload = await response.json();
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  const content = await Deno.readTextFile(path);
+
+  assertEquals(response.status, 404, 'Expected upstream route-not-found to remain a 404');
+  assertEquals(
+    payload.error.type,
+    'upstream_route_not_found',
+    'Expected normalized gateway error type',
+  );
+  assert(
+    content.includes('"errorType":"upstream_route_not_found"'),
+    'Expected audit record to include normalized error type',
+  );
+  assert(
+    content.includes('"upstreamStatus":404'),
+    'Expected audit record to include original upstream status',
+  );
+  assert(content.includes('"user":"user-001"'), 'Expected audit record to include user id');
+});
+
+Deno.test('chat completions normalizes upstream connection failures', async () => {
+  const handler = createHandler(
+    createTestConfig({
+      upstreamBaseUrl: 'https://upstream.test',
+    }),
+    {
+      fetchImpl: async () => {
+        throw new Error('dns error: failed to lookup address information');
+      },
+      auditService: createQuietAuditService(),
+    },
+  );
+
+  const response = await invokeGateway(handler, '/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'openai/gpt-3.5-turbo',
+      messages: [{ role: 'user', content: 'hello' }],
+    }),
+  });
+
+  const payload = await response.json();
+
+  assertEquals(response.status, 502, 'Expected upstream connection failure to map to 502');
+  assertEquals(
+    payload.error.type,
+    'upstream_connection_error',
+    'Expected normalized connection failure type',
+  );
 });
 
 Deno.test('admin audit endpoint returns filtered audit log entries', async () => {
@@ -522,23 +621,80 @@ Deno.test('admin audit endpoint supports detail lookup and time filtering', asyn
   assert(uiText.includes('Audit Viewer'), 'Expected audit UI content');
 });
 
-Deno.test('admin audit UI is accessible before entering auth token', async () => {
+Deno.test('admin routes require dedicated admin auth when configured', async () => {
+  const directory = await Deno.makeTempDir({ dir: '/tmp', prefix: 'secumesh-admin-auth-' });
+  const path = `${directory}/audit.jsonl`;
+  const sink = new FileAuditSink(path);
+  await sink.write({
+    timestamp: '2026-03-31T10:00:00.000Z',
+    requestId: 'req-admin',
+    sessionId: 'session-admin',
+    route: '/v1/chat/completions',
+    method: 'POST',
+    clientIp: '127.0.0.1',
+    model: 'openai/gpt-3.5-turbo',
+    status: 200,
+    durationMs: 11,
+    stream: false,
+    findings: [],
+  });
+
   const handler = createHandler(
     createTestConfig({
+      auditLogPath: path,
+      adminApiKeys: new Set(['admin-test-key']),
       enableConsoleAudit: false,
     }),
     {
       auditService: createQuietAuditService(),
+      auditRepository: new FileAuditRepository(path),
     },
   );
-  const response = await handler(
+
+  const apiUnauthorized = await invokeGateway(handler, '/admin/audit?limit=1', {
+    method: 'GET',
+  });
+  const apiAuthorized = await handler(
+    new Request('http://gateway.local/admin/audit?limit=1', {
+      method: 'GET',
+      headers: {
+        authorization: 'Bearer admin-test-key',
+      },
+    }),
+    createServeInfo(),
+  );
+  const uiUnauthorized = await handler(
     new Request('http://gateway.local/admin/audit-ui', { method: 'GET' }),
     createServeInfo(),
   );
-  const text = await response.text();
+  const uiAuthorized = await handler(
+    new Request('http://gateway.local/admin/audit-ui', {
+      method: 'GET',
+      headers: {
+        cookie: `secumesh_admin_auth=${encodeURIComponent('Bearer admin-test-key')}`,
+      },
+    }),
+    createServeInfo(),
+  );
 
-  assertEquals(response.status, 200, 'Expected audit UI shell to load without auth header');
-  assert(text.includes('Audit Viewer'), 'Expected audit UI shell content');
+  const unauthorizedPayload = await apiUnauthorized.json();
+  const uiUnauthorizedText = await uiUnauthorized.text();
+  const uiAuthorizedText = await uiAuthorized.text();
+
+  assertEquals(apiUnauthorized.status, 401, 'Expected admin API to reject non-admin token');
+  assertEquals(
+    unauthorizedPayload.error.type,
+    'invalid_api_key',
+    'Expected standard unauthorized admin API error',
+  );
+  assertEquals(apiAuthorized.status, 200, 'Expected admin API to accept admin token');
+  assertEquals(uiUnauthorized.status, 401, 'Expected admin UI to require admin login');
+  assert(
+    uiUnauthorizedText.includes('Admin Access'),
+    'Expected admin UI login page for unauthorized browser access',
+  );
+  assertEquals(uiAuthorized.status, 200, 'Expected admin UI to accept admin auth cookie');
+  assert(uiAuthorizedText.includes('Audit Viewer'), 'Expected authorized admin UI content');
 });
 
 Deno.test('chat completions restores placeholders in SSE stream across chunk boundaries', async () => {

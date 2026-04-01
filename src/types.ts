@@ -33,10 +33,14 @@ export interface AuditEvent {
   route: string;
   method: string;
   clientIp: string;
+  user?: string;
   model?: string;
   status: number;
+  upstreamStatus?: number;
+  errorType?: string;
   durationMs: number;
   stream: boolean;
+  findingsCount?: number;
   requestBytes?: number;
   responseBytes?: number;
   tokenUsage?: {

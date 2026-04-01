@@ -17,8 +17,9 @@ controls:
 
 1. Copy `.env.example` to `.env`.
 2. Set `UPSTREAM_BASE_URL` to your One API endpoint.
-3. For production-style runs, set `SESSION_STORE_DRIVER=redis`.
-4. Run `deno task dev`.
+3. Set `INTERNAL_API_KEYS` for chat traffic and `ADMIN_API_KEYS` for `/admin/*` access.
+4. For production-style runs, set `SESSION_STORE_DRIVER=redis`.
+5. Run `deno task dev`.
 
 Health check:
 
@@ -47,6 +48,31 @@ curl http://127.0.0.1:${PORT:-8080}/v1/chat/completions \
 
 The server now reads values from `.env` automatically, with shell environment variables taking
 priority over `.env`.
+
+## Configuration Validation
+
+SecuMesh now validates configuration at startup.
+
+Startup behavior:
+
+- invalid critical settings cause the process to exit immediately
+- risky but usable dev-style settings are reported as warnings
+
+Common examples:
+
+- missing or invalid `UPSTREAM_BASE_URL` produces a warning or startup error depending on format
+- `SESSION_STORE_DRIVER=redis` requires a valid `REDIS_URL`
+- empty `INTERNAL_API_KEYS` means chat traffic is not authenticated
+- empty `ADMIN_API_KEYS` falls back to `INTERNAL_API_KEYS` for admin protection
+
+Recommended production baseline:
+
+- set `UPSTREAM_BASE_URL`
+- set `INTERNAL_API_KEYS`
+- set `ADMIN_API_KEYS`
+- set `SESSION_STORE_DRIVER=redis`
+- set `REDIS_URL`
+- set `AUDIT_LOG_PATH`
 
 ## Testing
 
@@ -86,6 +112,7 @@ exercise the gateway with `SESSION_STORE_DRIVER=redis`.
 Recommended MVP settings:
 
 - `SESSION_STORE_DRIVER=redis`
+- `ADMIN_API_KEYS=...` to protect admin routes separately from chat traffic
 - `ALLOWED_MODELS=...` to enforce approved model usage
 - `OUTPUT_BLOCK_TERMS=...` to block or redact unsafe output
 - `OUTPUT_BLOCK_MODE=replace` for streaming-friendly enforcement
@@ -101,7 +128,8 @@ Operational endpoints:
 
 Additional documentation:
 
-- [Integration Guide](docs/integration-guide.md): how chat applications and backend services should connect to SecuMesh
+- [Integration Guide](docs/integration-guide.md): how chat applications and backend services should
+  connect to SecuMesh
 - [Roadmap](ROADMAP.md): current implementation roadmap and weekly delivery plan
 
 Example audit queries:

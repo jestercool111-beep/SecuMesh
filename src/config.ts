@@ -4,6 +4,7 @@ export interface AppConfig {
   upstreamBaseUrl: string;
   upstreamApiKey?: string;
   internalApiKeys: Set<string>;
+  adminApiKeys: Set<string>;
   sessionStoreDriver: 'memory' | 'redis';
   allowedModels: Set<string>;
   blockOnInjection: boolean;
@@ -16,6 +17,11 @@ export interface AppConfig {
   auditLogPath: string;
   redisUrl: string;
   redisKeyPrefix: string;
+}
+
+export interface ConfigValidationResult {
+  errors: string[];
+  warnings: string[];
 }
 
 function loadDotEnv(path = '.env'): Map<string, string> {
@@ -86,6 +92,12 @@ export function loadConfig(): AppConfig {
       .map((item) => item.trim())
       .filter(Boolean),
   );
+  const adminApiKeys = new Set(
+    (readEnv(dotEnv, 'ADMIN_API_KEYS') ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean),
+  );
   const allowedModels = new Set(
     (readEnv(dotEnv, 'ALLOWED_MODELS') ?? '')
       .split(',')
@@ -103,6 +115,7 @@ export function loadConfig(): AppConfig {
     upstreamBaseUrl: (readEnv(dotEnv, 'UPSTREAM_BASE_URL') ?? '').trim(),
     upstreamApiKey: (readEnv(dotEnv, 'UPSTREAM_API_KEY') ?? '').trim() || undefined,
     internalApiKeys,
+    adminApiKeys,
     sessionStoreDriver: (readEnv(dotEnv, 'SESSION_STORE_DRIVER') ?? 'memory').trim() === 'redis'
       ? 'redis'
       : 'memory',
@@ -120,4 +133,100 @@ export function loadConfig(): AppConfig {
     redisUrl: (readEnv(dotEnv, 'REDIS_URL') ?? 'redis://127.0.0.1:6379/0').trim(),
     redisKeyPrefix: (readEnv(dotEnv, 'REDIS_KEY_PREFIX') ?? 'secumesh:session:').trim(),
   };
+}
+
+export function validateConfig(config: AppConfig): ConfigValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (!config.host.trim()) {
+    errors.push('HOST must not be empty.');
+  }
+
+  if (!Number.isInteger(config.port) || config.port <= 0 || config.port > 65535) {
+    errors.push(`PORT must be a valid TCP port, received ${config.port}.`);
+  }
+
+  if (config.internalApiKeys.size === 0) {
+    warnings.push(
+      'INTERNAL_API_KEYS is empty. Chat endpoints will accept requests without gateway authentication.',
+    );
+  }
+
+  if (getAdminApiKeys(config).size === 0) {
+    warnings.push(
+      'ADMIN_API_KEYS is empty. Admin routes will not require dedicated admin credentials.',
+    );
+  }
+
+  if (config.sessionStoreDriver === 'redis') {
+    if (!config.redisUrl.trim()) {
+      errors.push('REDIS_URL is required when SESSION_STORE_DRIVER=redis.');
+    } else if (!config.redisUrl.startsWith('redis://')) {
+      errors.push(`REDIS_URL must use redis:// scheme, received ${config.redisUrl}.`);
+    }
+  } else if (config.sessionStoreDriver === 'memory') {
+    warnings.push(
+      'SESSION_STORE_DRIVER=memory is suitable for local development only. Use redis for shared session state in production.',
+    );
+  }
+
+  if (!config.upstreamBaseUrl.trim()) {
+    warnings.push(
+      'UPSTREAM_BASE_URL is not configured. /ready will stay degraded and chat proxying will fail until it is set.',
+    );
+  } else {
+    try {
+      const url = new URL(config.upstreamBaseUrl);
+      if (!['http:', 'https:'].includes(url.protocol)) {
+        errors.push(
+          `UPSTREAM_BASE_URL must start with http:// or https://, received ${config.upstreamBaseUrl}.`,
+        );
+      }
+      if (
+        (url.hostname === 'localhost' || url.hostname === '127.0.0.1') &&
+        config.sessionStoreDriver === 'redis'
+      ) {
+        warnings.push(
+          'UPSTREAM_BASE_URL points to localhost/127.0.0.1. If the gateway runs in Docker, this will not reach a host-side One API unless network routing is configured explicitly.',
+        );
+      }
+    } catch {
+      errors.push(`UPSTREAM_BASE_URL is not a valid URL: ${config.upstreamBaseUrl}.`);
+    }
+  }
+
+  if (!['replace', 'block'].includes(config.outputBlockMode)) {
+    errors.push(`OUTPUT_BLOCK_MODE must be replace or block, received ${config.outputBlockMode}.`);
+  }
+
+  if (!Number.isFinite(config.rateLimitWindowMs) || config.rateLimitWindowMs <= 0) {
+    errors.push(
+      `RATE_LIMIT_WINDOW_MS must be a positive number, received ${config.rateLimitWindowMs}.`,
+    );
+  }
+
+  if (!Number.isFinite(config.rateLimitMaxRequests) || config.rateLimitMaxRequests <= 0) {
+    errors.push(
+      `RATE_LIMIT_MAX_REQUESTS must be a positive number, received ${config.rateLimitMaxRequests}.`,
+    );
+  }
+
+  if (!Number.isFinite(config.sessionTtlSeconds) || config.sessionTtlSeconds <= 0) {
+    errors.push(
+      `SESSION_TTL_SECONDS must be a positive number, received ${config.sessionTtlSeconds}.`,
+    );
+  }
+
+  if (!config.auditLogPath.trim()) {
+    warnings.push(
+      'AUDIT_LOG_PATH is empty. File-based audit persistence is disabled unless another audit sink is configured.',
+    );
+  }
+
+  return { errors, warnings };
+}
+
+function getAdminApiKeys(config: AppConfig): Set<string> {
+  return config.adminApiKeys.size > 0 ? config.adminApiKeys : config.internalApiKeys;
 }

@@ -51,6 +51,59 @@ function isAuthorized(request: Request, config: AppConfig): boolean {
   return Boolean(token) && config.internalApiKeys.has(token);
 }
 
+function extractBearerToken(value: string | null): string {
+  if (!value) {
+    return '';
+  }
+
+  return value.startsWith('Bearer ') ? value.slice('Bearer '.length).trim() : '';
+}
+
+function readCookie(request: Request, name: string): string | undefined {
+  const cookieHeader = request.headers.get('cookie') ?? '';
+  for (const part of cookieHeader.split(';')) {
+    const trimmed = part.trim();
+    if (!trimmed) {
+      continue;
+    }
+    const separatorIndex = trimmed.indexOf('=');
+    if (separatorIndex <= 0) {
+      continue;
+    }
+    const key = trimmed.slice(0, separatorIndex).trim();
+    if (key !== name) {
+      continue;
+    }
+    return decodeURIComponent(trimmed.slice(separatorIndex + 1).trim());
+  }
+  return undefined;
+}
+
+function getAdminApiKeys(config: AppConfig): Set<string> {
+  return config.adminApiKeys.size > 0 ? config.adminApiKeys : config.internalApiKeys;
+}
+
+function getAdminAuthorization(request: Request): string {
+  const headerToken = extractBearerToken(request.headers.get('authorization'));
+  if (headerToken) {
+    return headerToken;
+  }
+  return extractBearerToken(readCookie(request, 'secumesh_admin_auth') ?? null);
+}
+
+function isAdminAuthorized(request: Request, config: AppConfig): boolean {
+  const adminApiKeys = getAdminApiKeys(config);
+  if (adminApiKeys.size === 0) {
+    return true;
+  }
+  const token = getAdminAuthorization(request);
+  return Boolean(token) && adminApiKeys.has(token);
+}
+
+function adminLoginResponse(status = 401): Response {
+  return html(renderAdminLoginPage(), { status });
+}
+
 const rateLimitMiddleware: Middleware = async (context, next) => {
   const result = context.rateLimiter.check(context.clientIp);
   if (!result.allowed) {
@@ -210,6 +263,8 @@ const auditMiddleware: Middleware = async (context, next) => {
   }
 
   const durationMs = Date.now() - context.startedAt;
+  const errorType = extractErrorType(response);
+  const upstreamStatus = extractUpstreamStatus(response);
   context.auditService.emit({
     timestamp: new Date(context.startedAt).toISOString(),
     requestId: context.requestId,
@@ -217,10 +272,14 @@ const auditMiddleware: Middleware = async (context, next) => {
     route: new URL(context.request.url).pathname,
     method: context.request.method,
     clientIp: context.clientIp,
+    user: context.state.requestBody?.user,
     model: context.state.requestBody?.model,
     status: response.status,
+    upstreamStatus,
+    errorType,
     durationMs,
     stream: Boolean(context.state.requestBody?.stream),
+    findingsCount: dedupeFindings(context.state.findings).length,
     requestBytes: Number(context.state.auditMeta.requestBytes ?? 0),
     responseBytes: Number(context.state.auditMeta.responseBytes ?? 0),
     tokenUsage: context.state.auditMeta.tokenUsage as {
@@ -317,7 +376,7 @@ export function createHandler(
     }
 
     if (request.method === 'GET' && url.pathname === '/admin/audit') {
-      if (!isAuthorized(request, appConfig)) {
+      if (!isAdminAuthorized(request, appConfig)) {
         return errorResponse(401, 'Unauthorized.', 'invalid_api_key');
       }
       if (!auditRepository) {
@@ -342,7 +401,7 @@ export function createHandler(
     }
 
     if (request.method === 'GET' && url.pathname.startsWith('/admin/audit/')) {
-      if (!isAuthorized(request, appConfig)) {
+      if (!isAdminAuthorized(request, appConfig)) {
         return errorResponse(401, 'Unauthorized.', 'invalid_api_key');
       }
       if (!auditRepository) {
@@ -363,6 +422,9 @@ export function createHandler(
     }
 
     if (request.method === 'GET' && url.pathname === '/admin/audit-ui') {
+      if (!isAdminAuthorized(request, appConfig)) {
+        return adminLoginResponse(401);
+      }
       return html(renderAuditPage());
     }
 
@@ -407,6 +469,19 @@ function dedupeFindings(findings: SecurityFinding[]): SecurityFinding[] {
     seen.add(key);
     return true;
   });
+}
+
+function extractErrorType(response: Response): string | undefined {
+  return response.headers.get('x-secumesh-error-type') ?? undefined;
+}
+
+function extractUpstreamStatus(response: Response): number | undefined {
+  const raw = response.headers.get('x-secumesh-upstream-status');
+  if (!raw) {
+    return undefined;
+  }
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 function renderAuditPage(): string {
@@ -859,6 +934,155 @@ function renderAuditPage(): string {
       form.addEventListener('submit', runQuery);
       loadFilters();
       runQuery();
+    </script>
+  </body>
+</html>`;
+}
+
+function renderAdminLoginPage(): string {
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SecuMesh Admin Login</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef6ff;
+        --panel: rgba(255, 255, 255, 0.92);
+        --line: #d8e3f0;
+        --text: #0f172a;
+        --muted: #475569;
+        --accent: #0f766e;
+        --danger: #b91c1c;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), transparent 30%),
+          radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 28%),
+          linear-gradient(160deg, #eff8ff 0%, #e7f5f0 100%);
+        font-family: "Avenir Next", "Helvetica Neue", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+        color: var(--text);
+      }
+      .panel {
+        width: min(460px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 18px 60px rgba(15, 23, 42, 0.12);
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 30px;
+      }
+      p {
+        margin: 0 0 18px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      label {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px 14px;
+        font: inherit;
+        background: white;
+      }
+      button {
+        margin-top: 14px;
+        width: 100%;
+        border: 0;
+        border-radius: 14px;
+        padding: 12px 14px;
+        font: inherit;
+        color: white;
+        background: var(--accent);
+        cursor: pointer;
+      }
+      .tip {
+        margin-top: 14px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .error {
+        margin-top: 12px;
+        color: var(--danger);
+        font-size: 14px;
+        min-height: 1.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <h1>Admin Access</h1>
+      <p>Enter a valid admin bearer token to access SecuMesh audit pages and admin APIs.</p>
+      <form id="loginForm">
+        <label for="token">Authorization</label>
+        <input
+          id="token"
+          name="token"
+          autocomplete="off"
+          placeholder="Bearer admin-demo-key"
+          required
+        />
+        <button type="submit">Continue</button>
+        <div id="error" class="error"></div>
+      </form>
+      <div class="tip">
+        The token is stored in a cookie and localStorage so the audit UI and admin API requests
+        can use the same admin session.
+      </div>
+    </div>
+    <script>
+      const form = document.getElementById('loginForm');
+      const errorEl = document.getElementById('error');
+      const tokenInput = document.getElementById('token');
+      const stored = localStorage.getItem('secumesh_admin_auth');
+      if (stored) {
+        tokenInput.value = stored;
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const token = tokenInput.value.trim();
+        if (!token) {
+          errorEl.textContent = 'Authorization token is required.';
+          return;
+        }
+
+        localStorage.setItem('secumesh_admin_auth', token);
+        document.cookie =
+          'secumesh_admin_auth=' + encodeURIComponent(token) +
+          '; Path=/; Max-Age=43200; SameSite=Lax';
+
+        const response = await fetch('/admin/audit?limit=1', {
+          headers: {
+            authorization: token,
+          },
+        });
+
+        if (!response.ok) {
+          errorEl.textContent = response.status === 401
+            ? 'The admin token was rejected.'
+            : 'Admin endpoint is temporarily unavailable.';
+          return;
+        }
+
+        window.location.href = '/admin/audit-ui';
+      });
     </script>
   </body>
 </html>`;
