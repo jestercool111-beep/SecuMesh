@@ -99,6 +99,11 @@ Operational endpoints:
 - `GET /admin/audit/:requestId`: fetch one audit record by request id
 - `GET /admin/audit-ui`: minimal in-browser audit viewer
 
+Additional documentation:
+
+- [Integration Guide](docs/integration-guide.md): how chat applications and backend services should connect to SecuMesh
+- [Roadmap](ROADMAP.md): current implementation roadmap and weekly delivery plan
+
 Example audit queries:
 
 ```sh
