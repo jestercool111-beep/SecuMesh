@@ -2,21 +2,77 @@ services:
   gateway:
     build:
       context: .
+      dockerfile: Dockerfile
+    container_name: secumesh
+    restart: unless-stopped
     env_file:
       - .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: ${PORT:-8080}
+      SESSION_STORE_DRIVER: ${SESSION_STORE_DRIVER:-redis}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_KEY_PREFIX: ${REDIS_KEY_PREFIX:-secumesh:session:}
+      AUDIT_LOG_PATH: ${AUDIT_LOG_PATH:-logs/audit.jsonl}
+      UPSTREAM_BASE_URL: ${UPSTREAM_BASE_URL:-http://one-api:3000}
     ports:
-      - '${PORT:-8080}:8080'
+      - '${PORT:-8080}:${PORT:-8080}'
     depends_on:
-      - redis
-      - clickhouse
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'deno',
+          'eval',
+          "const p = Deno.env.get('PORT') ?? '8080'; const r = await fetch('http://127.0.0.1:' + p + '/health'); if (!r.ok) Deno.exit(1);",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redis:7-alpine
+    container_name: secumesh-redis
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  one-api:
+    image: justsong/one-api:latest
+    container_name: one-api
+    platform: linux/amd64
+    restart: unless-stopped
+    profiles: ['full']
+    command: --log-dir /app/logs
     ports:
-      - '6379:6379'
+      - '${ONE_API_PORT:-3000}:3000'
+    volumes:
+      - ./one-api/data:/data
+      - ./one-api/logs:/app/logs
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      NODE_TYPE: master
+      SESSION_SECRET: ${ONE_API_SESSION_SECRET:-secumesh_secret_change_me}
 
   clickhouse:
     image: clickhouse/clickhouse-server:24.8
+    container_name: secumesh-clickhouse
+    profiles: ['ops']
+    restart: unless-stopped
     ports:
-      - '8123:8123'
-      - '9000:9000'
+      - '${CLICKHOUSE_HTTP_PORT:-8123}:8123'
+      - '${CLICKHOUSE_TCP_PORT:-9000}:9000'
+
+volumes:
+  redis-data:

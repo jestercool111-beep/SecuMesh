@@ -74,6 +74,58 @@ Recommended production baseline:
 - set `REDIS_URL`
 - set `AUDIT_LOG_PATH`
 
+## Docker Compose Deployment
+
+The repository now includes a root-level [`compose.yaml`](compose.yaml) for
+containerized deployment.
+
+Default services:
+
+- `secumesh`
+- `redis`
+
+Optional service:
+
+- `one-api` via the `full` profile
+
+Typical usage:
+
+```sh
+cp .env.example .env
+docker compose up -d --build
+```
+
+If One API is already running outside Docker on the host machine:
+
+- set `UPSTREAM_BASE_URL=http://host.docker.internal:3000` on macOS
+- or point `UPSTREAM_BASE_URL` to the reachable host/IP for your environment
+
+If you want to start One API inside the same compose stack:
+
+```sh
+docker compose --profile full up -d --build
+```
+
+In compose mode, use service names for internal traffic:
+
+- `UPSTREAM_BASE_URL=http://one-api:3000`
+- `REDIS_URL=redis://redis:6379/0`
+
+Important note:
+
+- inside a container, `localhost` refers to that container itself, not your host machine
+
+Health checks:
+
+- `secumesh` checks `GET /health`
+- `redis` checks `redis-cli ping`
+
+Log and data locations:
+
+- gateway audit logs: `./logs`
+- One API data: `./one-api/data`
+- One API logs: `./one-api/logs`
+
 ## Testing
 
 Run the full test suite:
@@ -155,6 +207,7 @@ curl "http://127.0.0.1:${PORT:-8080}/admin/audit/<request-id>"
 
 ## Notes
 
-- The current implementation keeps masking state in memory for local development.
-- Redis and ClickHouse are modeled as extension points but are not wired in yet.
+- The current implementation still supports in-memory masking state for local development.
+- Redis session storage is implemented and recommended for production-style deployments.
+- ClickHouse remains a planned extension point and is not wired in yet.
 - The proxy preserves OpenAI-compatible request and response shapes.

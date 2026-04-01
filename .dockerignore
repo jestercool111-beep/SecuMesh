@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env
+logs
+one-api/data
+one-api/logs
+node_modules
+dist
+coverage
+tmp
