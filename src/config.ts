@@ -15,6 +15,10 @@ export interface AppConfig {
   rateLimitMaxRequests: number;
   enableConsoleAudit: boolean;
   auditLogPath: string;
+  kafkaBroker: string;
+  kafkaAuditTopic: string;
+  postgresUrl: string;
+  jwtSecret: string;
   redisUrl: string;
   redisKeyPrefix: string;
 }
@@ -130,6 +134,11 @@ export function loadConfig(): AppConfig {
     rateLimitMaxRequests: parseNumber(readEnv(dotEnv, 'RATE_LIMIT_MAX_REQUESTS'), 120),
     enableConsoleAudit: parseBoolean(readEnv(dotEnv, 'ENABLE_CONSOLE_AUDIT'), true),
     auditLogPath: (readEnv(dotEnv, 'AUDIT_LOG_PATH') ?? 'logs/audit.jsonl').trim(),
+    kafkaBroker: (readEnv(dotEnv, 'KAFKA_BROKER') ?? 'kafka:9092').trim(),
+    kafkaAuditTopic: (readEnv(dotEnv, 'KAFKA_AUDIT_TOPIC') ?? 'audit-log-raw').trim(),
+    postgresUrl: (readEnv(dotEnv, 'POSTGRES_URL') ??
+      'postgres://secumesh:secumesh@postgres:5432/secumesh').trim(),
+    jwtSecret: (readEnv(dotEnv, 'JWT_SECRET') ?? 'secumesh-dev-secret').trim(),
     redisUrl: (readEnv(dotEnv, 'REDIS_URL') ?? 'redis://127.0.0.1:6379/0').trim(),
     redisKeyPrefix: (readEnv(dotEnv, 'REDIS_KEY_PREFIX') ?? 'secumesh:session:').trim(),
   };
@@ -222,6 +231,20 @@ export function validateConfig(config: AppConfig): ConfigValidationResult {
     warnings.push(
       'AUDIT_LOG_PATH is empty. File-based audit persistence is disabled unless another audit sink is configured.',
     );
+  }
+
+  if (!config.postgresUrl.trim()) {
+    warnings.push(
+      'POSTGRES_URL is empty. PostgreSQL-backed metadata/audit persistence is disabled.',
+    );
+  }
+
+  if (!config.kafkaBroker.trim()) {
+    warnings.push('KAFKA_BROKER is empty. Kafka audit fan-out is disabled.');
+  }
+
+  if (!config.jwtSecret.trim()) {
+    warnings.push('JWT_SECRET is empty. JWT-based console auth cannot be enabled safely.');
   }
 
   return { errors, warnings };

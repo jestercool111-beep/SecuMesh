@@ -2,6 +2,7 @@
   "tasks": {
     "dev": "deno run --watch --allow-env --allow-net --allow-read --allow-write src/main.ts",
     "start": "deno run --allow-env --allow-net --allow-read --allow-write src/main.ts",
+    "worker": "deno run --allow-env --allow-net --allow-read --allow-write src/worker.ts",
     "check": "deno check src/main.ts",
     "test": "deno test src/app_test.ts src/config_test.ts src/processors/sensitive_processor_test.ts src/services/audit_test.ts --allow-read --allow-write",
     "test:redis": "deno test src/redis_integration_test.ts --allow-read --allow-write=/tmp --allow-run=redis-server --allow-net=127.0.0.1,localhost"

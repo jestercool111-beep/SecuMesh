@@ -100,6 +100,49 @@ export async function forwardChatCompletion(
   }
 }
 
+export async function forwardGenericRequest(
+  request: Request,
+  config: AppConfig,
+  body: unknown,
+  fetchImpl: typeof fetch = fetch,
+): Promise<Response> {
+  if (!config.upstreamBaseUrl) {
+    return new Response(
+      JSON.stringify({
+        error: {
+          type: 'configuration_error',
+          message: 'UPSTREAM_BASE_URL is not configured.',
+        },
+      }),
+      {
+        status: 503,
+        headers: { 'content-type': 'application/json; charset=utf-8' },
+      },
+    );
+  }
+
+  const upstreamUrl = new URL(request.url);
+  const targetUrl = new URL(
+    upstreamUrl.pathname + upstreamUrl.search,
+    withTrailingSlash(config.upstreamBaseUrl),
+  );
+
+  try {
+    const upstreamResponse = await fetchImpl(targetUrl, {
+      method: request.method,
+      headers: buildUpstreamHeaders(request, config),
+      body: JSON.stringify(body),
+    });
+    return await normalizeUpstreamResponse(upstreamResponse);
+  } catch (error) {
+    return createGatewayErrorResponse({
+      status: 502,
+      type: 'upstream_connection_error',
+      message: error instanceof Error ? error.message : 'Failed to reach upstream provider.',
+    });
+  }
+}
+
 export async function restoreJsonResponse(
   upstreamResponse: Response,
   restoreText: (input: string) => Promise<string>,

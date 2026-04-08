@@ -1,4 +1,11 @@
 import type { AppConfig } from './config.ts';
+import type {
+  ApiKeyRecord,
+  AuthPrincipal,
+  Role,
+  TenantRecord,
+  UpstreamProviderRecord,
+} from './domain.ts';
 import { compose, type GatewayContext, type Middleware } from './middleware.ts';
 import { InjectionChecker } from './processors/injection_checker.ts';
 import { OutputPolicyProcessor } from './processors/output_policy_processor.ts';
@@ -8,13 +15,21 @@ import {
   ConsoleAuditSink,
   FileAuditRepository,
   FileAuditSink,
+  KafkaAuditSink,
 } from './services/audit.ts';
+import { InMemoryMetadataStore, type MetadataStore } from './services/metadata.ts';
 import {
   forwardChatCompletion,
+  forwardGenericRequest,
   restoreJsonResponse,
   restoreStreamingResponse,
 } from './services/proxy.ts';
-import { InMemoryRateLimiter } from './services/rate_limiter.ts';
+import {
+  InMemoryRateLimiter,
+  type RateLimiter,
+  RedisRateLimiter,
+} from './services/rate_limiter.ts';
+import { RedisClient } from './store/redis_client.ts';
 import { createSessionStore } from './store/factory.ts';
 import type { SessionStore } from './store/session_store.ts';
 import type { ChatCompletionsRequest, SecurityFinding } from './types.ts';
@@ -25,31 +40,33 @@ interface CreateHandlerOptions {
   auditService?: AuditService;
   sessionStore?: SessionStore;
   auditRepository?: FileAuditRepository;
+  metadataStore?: MetadataStore;
+  rateLimiter?: RateLimiter;
 }
 
 const authMiddleware: Middleware = async (context, next) => {
+  const authorization = getRequestAuthorization(context.request);
+  const tenantSlug = context.request.headers.get('x-tenant-id')?.trim() || undefined;
+  const principal = authorization
+    ? await context.metadataStore.authenticateApiKey(authorization, tenantSlug)
+    : undefined;
+
+  if (principal) {
+    context.state.principal = principal;
+    return await next();
+  }
+
   if (context.config.internalApiKeys.size === 0) {
     return await next();
   }
 
-  const header = context.request.headers.get('authorization') ?? '';
-  const token = header.startsWith('Bearer ') ? header.slice('Bearer '.length).trim() : '';
+  const token = extractBearerToken(context.request.headers.get('authorization'));
   if (!token || !context.config.internalApiKeys.has(token)) {
     return errorResponse(401, 'Unauthorized.', 'invalid_api_key');
   }
 
   return await next();
 };
-
-function isAuthorized(request: Request, config: AppConfig): boolean {
-  if (config.internalApiKeys.size === 0) {
-    return true;
-  }
-
-  const header = request.headers.get('authorization') ?? '';
-  const token = header.startsWith('Bearer ') ? header.slice('Bearer '.length).trim() : '';
-  return Boolean(token) && config.internalApiKeys.has(token);
-}
 
 function extractBearerToken(value: string | null): string {
   if (!value) {
@@ -91,6 +108,10 @@ function getAdminAuthorization(request: Request): string {
   return extractBearerToken(readCookie(request, 'secumesh_admin_auth') ?? null);
 }
 
+function getRequestAuthorization(request: Request): string {
+  return extractBearerToken(request.headers.get('authorization'));
+}
+
 function isAdminAuthorized(request: Request, config: AppConfig): boolean {
   const adminApiKeys = getAdminApiKeys(config);
   if (adminApiKeys.size === 0) {
@@ -105,7 +126,7 @@ function adminLoginResponse(status = 401): Response {
 }
 
 const rateLimitMiddleware: Middleware = async (context, next) => {
-  const result = context.rateLimiter.check(context.clientIp);
+  const result = await context.rateLimiter.check(buildRateLimitKeys(context));
   if (!result.allowed) {
     return errorResponse(429, 'Rate limit exceeded.', 'rate_limit_exceeded');
   }
@@ -155,9 +176,14 @@ const securityMiddleware: Middleware = async (context, next) => {
     return errorResponse(500, 'Request body was not initialized.', 'internal_error');
   }
 
-  const sanitized = await context.sensitiveProcessor.sanitizeRequest(context.sessionId, body);
+  const sanitized = await context.sensitiveProcessor.sanitizeRequest(
+    context.sessionId,
+    body,
+    context.state.principal?.tenant.maskingPolicy,
+  );
   context.state.maskedRequestBody = sanitized.body;
   context.state.findings.push(...sanitized.findings);
+  context.state.auditMeta.requestBody = sanitized.body;
 
   const combinedPrompt = sanitized.body.messages
     .map((message) => {
@@ -233,6 +259,7 @@ function createProxyMiddleware(fetchImpl: typeof fetch): Middleware {
     context.state.findings.push(...outputResult.findings);
     context.state.auditMeta.responseBytes = new TextEncoder().encode(outputResult.text).byteLength;
     context.state.auditMeta.tokenUsage = proxyResult.tokenUsage ?? {};
+    context.state.auditMeta.responseBody = safeJsonParse(outputResult.text);
 
     if (outputResult.blocked) {
       return errorResponse(
@@ -265,33 +292,68 @@ const auditMiddleware: Middleware = async (context, next) => {
   const durationMs = Date.now() - context.startedAt;
   const errorType = extractErrorType(response);
   const upstreamStatus = extractUpstreamStatus(response);
+  const principal = context.state.principal;
+  const findings = dedupeFindings(context.state.findings);
+  const tokenUsage = context.state.auditMeta.tokenUsage as {
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+  } | undefined;
   context.auditService.emit({
     timestamp: new Date(context.startedAt).toISOString(),
     requestId: context.requestId,
     sessionId: context.sessionId,
+    tenantId: principal?.tenant.id,
+    deptId: principal?.user?.deptId,
+    userId: principal?.user?.id,
+    apiKeyId: principal?.apiKey?.id,
     route: new URL(context.request.url).pathname,
     method: context.request.method,
     clientIp: context.clientIp,
-    user: context.state.requestBody?.user,
+    user: context.state.requestBody?.user ?? principal?.user?.email,
+    upstream: String(context.state.auditMeta.upstream ?? 'one_api'),
     model: context.state.requestBody?.model,
     status: response.status,
     upstreamStatus,
     errorType,
+    errorMessage: errorType ? await response.clone().text().catch(() => undefined) : undefined,
     durationMs,
     stream: Boolean(context.state.requestBody?.stream),
-    findingsCount: dedupeFindings(context.state.findings).length,
+    findingsCount: findings.length,
     requestBytes: Number(context.state.auditMeta.requestBytes ?? 0),
     responseBytes: Number(context.state.auditMeta.responseBytes ?? 0),
-    tokenUsage: context.state.auditMeta.tokenUsage as {
-      promptTokens?: number;
-      completionTokens?: number;
-      totalTokens?: number;
-    } | undefined,
-    findings: dedupeFindings(context.state.findings),
+    requestBody: context.state.auditMeta.requestBody,
+    responseBody: context.state.auditMeta.responseBody,
+    tokenUsage,
+    inputTokens: tokenUsage?.promptTokens,
+    outputTokens: tokenUsage?.completionTokens,
+    maskedEntities: countMaskedEntities(findings),
+    findings,
     meta: {
       upstreamConfigured: Boolean(context.config.upstreamBaseUrl),
     },
   });
+
+  if (principal?.tenant.id && tokenUsage?.totalTokens) {
+    const now = new Date();
+    const periodHour = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${
+      String(now.getUTCDate()).padStart(2, '0')
+    }T${String(now.getUTCHours()).padStart(2, '0')}:00:00.000Z`;
+    await context.metadataStore.recordUsage({
+      id: '',
+      tenantId: principal.tenant.id,
+      deptId: principal.user?.deptId,
+      userId: principal.user?.id,
+      apiKeyId: principal.apiKey?.id,
+      periodHour,
+      upstream: String(context.state.auditMeta.upstream ?? 'one_api'),
+      model: context.state.requestBody?.model ?? 'unknown',
+      inputTokens: tokenUsage.promptTokens ?? 0,
+      outputTokens: tokenUsage.completionTokens ?? 0,
+      requestCount: 1,
+      errorCount: response.status >= 400 ? 1 : 0,
+    });
+  }
 
   return response;
 };
@@ -300,6 +362,9 @@ export function createHandler(
   appConfig: AppConfig,
   options: CreateHandlerOptions = {},
 ): Deno.ServeHandler {
+  const metadataStorePromise = options.metadataStore
+    ? Promise.resolve(options.metadataStore)
+    : InMemoryMetadataStore.create(appConfig);
   const sessionStore = options.sessionStore ?? createSessionStore(appConfig);
   const sensitiveProcessor = new SensitiveProcessor(sessionStore);
   const injectionChecker = new InjectionChecker();
@@ -310,6 +375,9 @@ export function createHandler(
   if (appConfig.auditLogPath) {
     auditSinks.push(new FileAuditSink(appConfig.auditLogPath));
   }
+  if (appConfig.kafkaBroker) {
+    auditSinks.push(new KafkaAuditSink('logs/audit-topic.jsonl'));
+  }
   const outputPolicyProcessor = new OutputPolicyProcessor(
     appConfig.outputBlockTerms,
     appConfig.outputBlockMode,
@@ -317,10 +385,10 @@ export function createHandler(
   const auditService = options.auditService ?? new AuditService(auditSinks);
   const auditRepository = options.auditRepository ??
     (appConfig.auditLogPath ? new FileAuditRepository(appConfig.auditLogPath) : undefined);
-  const rateLimiter = new InMemoryRateLimiter(
-    appConfig.rateLimitWindowMs,
-    appConfig.rateLimitMaxRequests,
-  );
+  const rateLimiter = options.rateLimiter ??
+    (appConfig.sessionStoreDriver === 'redis'
+      ? new RedisRateLimiter(new RedisClient(appConfig.redisUrl), appConfig.rateLimitWindowMs)
+      : new InMemoryRateLimiter(appConfig.rateLimitWindowMs));
   const proxyMiddleware = createProxyMiddleware(options.fetchImpl ?? fetch);
   const chain = compose([
     auditMiddleware,
@@ -332,6 +400,7 @@ export function createHandler(
   ]);
 
   return async (request, info) => {
+    const metadataStore = await metadataStorePromise;
     const url = new URL(request.url);
 
     if (request.method === 'GET' && url.pathname === '/health') {
@@ -341,6 +410,8 @@ export function createHandler(
         sessionStoreDriver: appConfig.sessionStoreDriver,
         auditLogPath: appConfig.auditLogPath,
         allowlistEnabled: appConfig.allowedModels.size > 0,
+        postgresConfigured: Boolean(appConfig.postgresUrl),
+        kafkaConfigured: Boolean(appConfig.kafkaBroker),
       });
     }
 
@@ -363,6 +434,11 @@ export function createHandler(
           ok: sink.ok,
           details: sink.details,
         })),
+        {
+          name: 'metadata_store',
+          ok: true,
+          details: metadataStore.constructor.name,
+        },
       ];
       const ready = dependencies.every((item) => item.ok);
 
@@ -428,6 +504,277 @@ export function createHandler(
       return html(renderAuditPage());
     }
 
+    if (request.method === 'GET' && url.pathname === '/v1/models') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal) {
+        return errorResponse(401, 'Unauthorized.', 'invalid_api_key');
+      }
+      return json({
+        object: 'list',
+        data:
+          (await metadataStore.listModelsForTenant(principal.tenant.id, appConfig.allowedModels))
+            .map((id) => ({ id, object: 'model', owned_by: principal.tenant.slug })),
+      });
+    }
+
+    if (url.pathname === '/compliance/logs' && request.method === 'GET') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin', 'dept_admin', 'readonly'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      if (!auditRepository) {
+        return errorResponse(503, 'Audit repository is not configured.', 'audit_unavailable');
+      }
+      const limit = queryStringNumber(url, 'limit', 50, { min: 1, max: 200 });
+      const statusRaw = url.searchParams.get('status');
+      const status = statusRaw ? Number(statusRaw) : undefined;
+      return json(
+        await auditRepository.query({
+          limit,
+          tenantId: principal.tenant.id,
+          userId: url.searchParams.get('userId') ?? undefined,
+          deptId: url.searchParams.get('deptId') ?? undefined,
+          requestId: url.searchParams.get('requestId') ?? undefined,
+          sessionId: url.searchParams.get('sessionId') ?? undefined,
+          model: url.searchParams.get('model') ?? undefined,
+          status: Number.isFinite(status) ? status : undefined,
+          from: url.searchParams.get('from') ?? undefined,
+          to: url.searchParams.get('to') ?? undefined,
+        }),
+      );
+    }
+
+    if (url.pathname.startsWith('/compliance/logs/') && request.method === 'GET') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin', 'dept_admin', 'readonly'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      if (!auditRepository) {
+        return errorResponse(503, 'Audit repository is not configured.', 'audit_unavailable');
+      }
+      const requestId = decodeURIComponent(url.pathname.slice('/compliance/logs/'.length));
+      const item = await auditRepository.getByRequestId(requestId);
+      if (!item || item.tenantId !== principal.tenant.id) {
+        return errorResponse(404, 'Compliance log not found.', 'audit_not_found');
+      }
+      return json({ item });
+    }
+
+    if (url.pathname === '/compliance/export' && request.method === 'POST') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin', 'dept_admin', 'readonly'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      return json({
+        status: 'queued',
+        exportId: crypto.randomUUID(),
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      }, { status: 202 });
+    }
+
+    if (url.pathname === '/compliance/summary' && request.method === 'GET') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin', 'dept_admin', 'readonly'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      const usage = await metadataStore.getUsageSummary(principal.tenant.id);
+      return json({
+        items: usage,
+        totalRequests: usage.reduce((sum, item) => sum + item.requestCount, 0),
+        totalInputTokens: usage.reduce((sum, item) => sum + item.inputTokens, 0),
+        totalOutputTokens: usage.reduce((sum, item) => sum + item.outputTokens, 0),
+      });
+    }
+
+    if (url.pathname === '/api/v1/tenants/me' && request.method === 'GET') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal) {
+        return errorResponse(401, 'Unauthorized.', 'invalid_api_key');
+      }
+      return json({ tenant: principal.tenant, user: principal.user });
+    }
+
+    if (url.pathname === '/api/v1/tenants/me' && request.method === 'PUT') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      const payload = await readJson<Record<string, unknown>>(request);
+      const updated = await metadataStore.updateTenant(principal.tenant.id, {
+        name: typeof payload.name === 'string' ? payload.name : undefined,
+        maskingPolicy: isObject(payload.maskingPolicy)
+          ? payload.maskingPolicy as unknown as TenantRecord['maskingPolicy']
+          : undefined,
+        routingPolicy: isObject(payload.routingPolicy)
+          ? payload.routingPolicy as unknown as TenantRecord['routingPolicy']
+          : undefined,
+        quotaConfig: isObject(payload.quotaConfig)
+          ? payload.quotaConfig as unknown as TenantRecord['quotaConfig']
+          : undefined,
+      });
+      return json({ tenant: updated });
+    }
+
+    if (url.pathname === '/api/v1/users' && request.method === 'GET') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin', 'dept_admin'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      return json({ items: await metadataStore.listUsers(principal.tenant.id) });
+    }
+
+    if (url.pathname === '/api/v1/users' && request.method === 'POST') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      const payload = await readJson<Record<string, unknown>>(request);
+      const user = await metadataStore.createUser(principal.tenant.id, {
+        email: String(payload.email ?? ''),
+        name: String(payload.name ?? ''),
+        role: normalizeRole(String(payload.role ?? 'user')),
+        deptId: typeof payload.deptId === 'string' ? payload.deptId : undefined,
+      });
+      return json({ user }, { status: 201 });
+    }
+
+    if (url.pathname.startsWith('/api/v1/users/') && request.method === 'DELETE') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      const userId = decodeURIComponent(url.pathname.slice('/api/v1/users/'.length));
+      const deleted = await metadataStore.deactivateUser(principal.tenant.id, userId);
+      return deleted ? json({ status: 'ok' }) : errorResponse(404, 'User not found.', 'not_found');
+    }
+
+    if (url.pathname === '/api/v1/api-keys' && request.method === 'GET') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal) {
+        return errorResponse(401, 'Unauthorized.', 'invalid_api_key');
+      }
+      const onlyMine = !hasRole(principal, ['tenant_admin', 'dept_admin'])
+        ? principal.user?.id
+        : undefined;
+      return json({ items: await metadataStore.listApiKeys(principal.tenant.id, onlyMine) });
+    }
+
+    if (url.pathname === '/api/v1/api-keys' && request.method === 'POST') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal) {
+        return errorResponse(401, 'Unauthorized.', 'invalid_api_key');
+      }
+      const payload = await readJson<Record<string, unknown>>(request);
+      const created = await metadataStore.createApiKey(principal.tenant.id, {
+        userId: typeof payload.userId === 'string' ? payload.userId : principal.user?.id,
+        name: String(payload.name ?? 'Generated API Key'),
+        scopes: Array.isArray(payload.scopes) ? payload.scopes.map(String) : ['chat'],
+        expiresAt: typeof payload.expiresAt === 'string' ? payload.expiresAt : undefined,
+      });
+      return json(created, { status: 201 });
+    }
+
+    if (url.pathname.startsWith('/api/v1/api-keys/') && request.method === 'DELETE') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal) {
+        return errorResponse(401, 'Unauthorized.', 'invalid_api_key');
+      }
+      const apiKeyId = decodeURIComponent(url.pathname.slice('/api/v1/api-keys/'.length));
+      const revoked = await metadataStore.revokeApiKey(principal.tenant.id, apiKeyId);
+      return revoked
+        ? json({ status: 'revoked' })
+        : errorResponse(404, 'API key not found.', 'not_found');
+    }
+
+    if (url.pathname === '/api/v1/usage' && request.method === 'GET') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal) {
+        return errorResponse(401, 'Unauthorized.', 'invalid_api_key');
+      }
+      const userScoped = hasRole(principal, ['tenant_admin', 'dept_admin'])
+        ? undefined
+        : principal.user?.id;
+      return json({ items: await metadataStore.getUsageSummary(principal.tenant.id, userScoped) });
+    }
+
+    if (url.pathname === '/api/v1/upstreams' && request.method === 'GET') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      return json({ items: await metadataStore.listUpstreams(principal.tenant.id) });
+    }
+
+    if (url.pathname === '/api/v1/upstreams' && request.method === 'POST') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      const payload = await readJson<Record<string, unknown>>(request);
+      const upstream = await metadataStore.createUpstream(principal.tenant.id, {
+        name: String(payload.name ?? 'upstream'),
+        provider: normalizeProvider(String(payload.provider ?? 'one_api')),
+        baseUrl: String(payload.baseUrl ?? appConfig.upstreamBaseUrl),
+        apiKeyRef: String(payload.apiKeyRef ?? 'env:UPSTREAM_API_KEY'),
+        models: Array.isArray(payload.models) ? payload.models.map(String) : [],
+        isActive: payload.isActive !== false,
+        priority: Number(payload.priority ?? 10),
+      });
+      return json({ upstream }, { status: 201 });
+    }
+
+    if (url.pathname.startsWith('/api/v1/upstreams/') && request.method === 'PUT') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      const upstreamId = decodeURIComponent(url.pathname.slice('/api/v1/upstreams/'.length));
+      const payload = await readJson<Record<string, unknown>>(request);
+      const upstream = await metadataStore.updateUpstream(principal.tenant.id, upstreamId, {
+        name: typeof payload.name === 'string' ? payload.name : undefined,
+        provider: typeof payload.provider === 'string'
+          ? normalizeProvider(payload.provider)
+          : undefined,
+        baseUrl: typeof payload.baseUrl === 'string' ? payload.baseUrl : undefined,
+        apiKeyRef: typeof payload.apiKeyRef === 'string' ? payload.apiKeyRef : undefined,
+        models: Array.isArray(payload.models) ? payload.models.map(String) : undefined,
+        isActive: typeof payload.isActive === 'boolean' ? payload.isActive : undefined,
+        priority: Number.isFinite(Number(payload.priority)) ? Number(payload.priority) : undefined,
+      });
+      return upstream ? json({ upstream }) : errorResponse(404, 'Upstream not found.', 'not_found');
+    }
+
+    if (url.pathname.startsWith('/api/v1/upstreams/') && request.method === 'DELETE') {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal || !hasRole(principal, ['tenant_admin'])) {
+        return errorResponse(403, 'Forbidden.', 'forbidden');
+      }
+      const upstreamId = decodeURIComponent(url.pathname.slice('/api/v1/upstreams/'.length));
+      const deleted = await metadataStore.deleteUpstream(principal.tenant.id, upstreamId);
+      return deleted
+        ? json({ status: 'deleted' })
+        : errorResponse(404, 'Upstream not found.', 'not_found');
+    }
+
+    if (
+      request.method === 'POST' &&
+      (url.pathname === '/v1/completions' || url.pathname === '/v1/embeddings')
+    ) {
+      const principal = await authenticateGatewayPrincipal(request, appConfig, metadataStore);
+      if (!principal) {
+        return errorResponse(401, 'Unauthorized.', 'invalid_api_key');
+      }
+      const body = await readJson<Record<string, unknown>>(request);
+      const forwarded = await forwardGenericRequest(
+        request,
+        appConfig,
+        body,
+        options.fetchImpl ?? fetch,
+      );
+      forwarded.headers.set('x-request-id', crypto.randomUUID());
+      return forwarded;
+    }
+
     if (request.method !== 'POST' || url.pathname !== '/v1/chat/completions') {
       return errorResponse(404, 'Not found.', 'not_found');
     }
@@ -444,6 +791,7 @@ export function createHandler(
       injectionChecker,
       outputPolicyProcessor,
       rateLimiter,
+      metadataStore,
       sessionStore,
       requestId,
       sessionId,
@@ -482,6 +830,107 @@ function extractUpstreamStatus(response: Response): number | undefined {
   }
   const parsed = Number(raw);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+async function authenticateGatewayPrincipal(
+  request: Request,
+  config: AppConfig,
+  metadataStore: MetadataStore,
+): Promise<AuthPrincipal | undefined> {
+  const authorization = getRequestAuthorization(request);
+  if (!authorization) {
+    return undefined;
+  }
+  const tenantSlug = request.headers.get('x-tenant-id')?.trim() || undefined;
+  const principal = await metadataStore.authenticateApiKey(authorization, tenantSlug);
+  if (principal) {
+    return principal;
+  }
+  if (config.internalApiKeys.has(authorization)) {
+    return await metadataStore.authenticateApiKey(authorization);
+  }
+  return undefined;
+}
+
+function buildRateLimitKeys(context: GatewayContext): Array<{ key: string; limit: number }> {
+  const principal = context.state.principal;
+  if (!principal) {
+    return [{ key: `rate:ip:${context.clientIp}`, limit: context.config.rateLimitMaxRequests }];
+  }
+
+  const items = [
+    {
+      key: `rate:tenant:${principal.tenant.id}`,
+      limit: principal.tenant.quotaConfig.tenantPerMinute,
+    },
+    {
+      key: `rate:key:${principal.apiKey?.id ?? context.clientIp}`,
+      limit: principal.tenant.quotaConfig.apiKeyPerMinute,
+    },
+  ];
+  if (principal.user?.deptId) {
+    items.push({
+      key: `rate:dept:${principal.user.deptId}`,
+      limit: principal.tenant.quotaConfig.deptPerMinute,
+    });
+  }
+  if (principal.user?.id) {
+    items.push({
+      key: `rate:user:${principal.user.id}`,
+      limit: principal.tenant.quotaConfig.userPerMinute,
+    });
+  }
+  return items;
+}
+
+function hasRole(principal: AuthPrincipal, roles: Role[]): boolean {
+  return principal.roles.some((role) => roles.includes(role));
+}
+
+function normalizeRole(value: string): Role {
+  switch (value) {
+    case 'tenant_admin':
+    case 'dept_admin':
+    case 'readonly':
+      return value;
+    default:
+      return 'user';
+  }
+}
+
+function normalizeProvider(value: string): UpstreamProviderRecord['provider'] {
+  switch (value) {
+    case 'openai':
+    case 'anthropic':
+    case 'google':
+    case 'deepseek':
+      return value;
+    default:
+      return 'one_api';
+  }
+}
+
+function safeJsonParse(value: string): unknown {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+function countMaskedEntities(findings: SecurityFinding[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const finding of findings) {
+    if (!finding.code.endsWith('_MASKED')) {
+      continue;
+    }
+    counts[finding.code] = (counts[finding.code] ?? 0) + 1;
+  }
+  return counts;
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function renderAuditPage(): string {

@@ -1,15 +1,18 @@
 import type { AppConfig } from './config.ts';
+import type { AuthPrincipal } from './domain.ts';
 import type { InjectionChecker } from './processors/injection_checker.ts';
 import type { OutputPolicyProcessor } from './processors/output_policy_processor.ts';
 import type { SensitiveProcessor } from './processors/sensitive_processor.ts';
 import type { AuditService } from './services/audit.ts';
-import type { InMemoryRateLimiter } from './services/rate_limiter.ts';
+import type { MetadataStore } from './services/metadata.ts';
+import type { RateLimiter } from './services/rate_limiter.ts';
 import type { SessionStore } from './store/session_store.ts';
 import type { ChatCompletionsRequest, SecurityFinding } from './types.ts';
 
 export interface GatewayState {
   requestBody?: ChatCompletionsRequest;
   maskedRequestBody?: ChatCompletionsRequest;
+  principal?: AuthPrincipal;
   findings: SecurityFinding[];
   auditMeta: Record<string, unknown>;
 }
@@ -21,7 +24,8 @@ export interface GatewayContext {
   sensitiveProcessor: SensitiveProcessor;
   injectionChecker: InjectionChecker;
   outputPolicyProcessor: OutputPolicyProcessor;
-  rateLimiter: InMemoryRateLimiter;
+  rateLimiter: RateLimiter;
+  metadataStore: MetadataStore;
   sessionStore: SessionStore;
   requestId: string;
   sessionId: string;

@@ -11,7 +11,7 @@ controls:
 - Basic prompt injection detection
 - Streaming and non-streaming proxy support
 - Async audit hooks with pluggable sinks
-- Extension points for Redis and ClickHouse
+- Extension points for PostgreSQL, Redis, Kafka and future billing/console modules
 
 ## Quick start
 
@@ -76,13 +76,16 @@ Recommended production baseline:
 
 ## Docker Compose Deployment
 
-The repository now includes a root-level [`compose.yaml`](compose.yaml) for
-containerized deployment.
+The repository now includes a root-level [`compose.yaml`](compose.yaml) for containerized
+deployment.
 
 Default services:
 
 - `secumesh`
 - `redis`
+- `postgres`
+- `kafka`
+- `worker`
 
 Optional service:
 
@@ -110,6 +113,8 @@ In compose mode, use service names for internal traffic:
 
 - `UPSTREAM_BASE_URL=http://one-api:3000`
 - `REDIS_URL=redis://redis:6379/0`
+- `POSTGRES_URL=postgres://secumesh:secumesh@postgres:5432/secumesh`
+- `KAFKA_BROKER=kafka:9092`
 
 Important note:
 
@@ -174,9 +179,18 @@ Operational endpoints:
 
 - `GET /health`: liveness and config summary
 - `GET /ready`: readiness check for upstream config, session store, and audit sinks
+- `GET /v1/models`: return tenant-visible models
 - `GET /admin/audit`: query recent audit records from the JSONL audit file
 - `GET /admin/audit/:requestId`: fetch one audit record by request id
 - `GET /admin/audit-ui`: minimal in-browser audit viewer
+- `GET /compliance/logs`: tenant-scoped compliance query API
+- `GET /compliance/logs/:id`: compliance log detail
+- `POST /compliance/export`: async compliance export placeholder
+- `GET /compliance/summary`: aggregated usage summary
+- `GET /api/v1/tenants/me`: current tenant summary
+- `GET /api/v1/users`: tenant user list
+- `GET /api/v1/api-keys`: API key management
+- `GET /api/v1/upstreams`: upstream management
 
 Additional documentation:
 
@@ -198,16 +212,21 @@ curl "http://127.0.0.1:${PORT:-8080}/admin/audit/<request-id>"
 ## Project layout
 
 - `src/main.ts`: bootstraps the server
+- `src/worker.ts`: MVP worker bridge for future Kafka/PostgreSQL audit pipeline
 - `src/app.ts`: route entrypoints and middleware assembly
 - `src/config.ts`: runtime configuration
 - `src/middleware/`: auth, rate limit, parsing, security, audit
 - `src/processors/`: masking and injection checks
 - `src/services/`: upstream proxy and audit service
 - `src/store/`: session mapping and transient state
+- `migrations/`: initial PostgreSQL schema
+- `console/`: React + TypeScript + Ant Design console scaffold
 
 ## Notes
 
 - The current implementation still supports in-memory masking state for local development.
 - Redis session storage is implemented and recommended for production-style deployments.
+- PostgreSQL and Kafka are now formal MVP dependencies at the architecture level; the current repo
+  includes the schema and local-dev worker bridge.
 - ClickHouse remains a planned extension point and is not wired in yet.
 - The proxy preserves OpenAI-compatible request and response shapes.

@@ -4,6 +4,8 @@
 logs
 one-api/data
 one-api/logs
+console/node_modules
+console/dist
 node_modules
 dist
 coverage

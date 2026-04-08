@@ -14,14 +14,23 @@ services:
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       REDIS_KEY_PREFIX: ${REDIS_KEY_PREFIX:-secumesh:session:}
       AUDIT_LOG_PATH: ${AUDIT_LOG_PATH:-logs/audit.jsonl}
+      AUDIT_TOPIC_PATH: ${AUDIT_TOPIC_PATH:-logs/audit-topic.jsonl}
       UPSTREAM_BASE_URL: ${UPSTREAM_BASE_URL:-http://one-api:3000}
+      POSTGRES_URL: ${POSTGRES_URL:-postgres://secumesh:secumesh@postgres:5432/secumesh}
+      KAFKA_BROKER: ${KAFKA_BROKER:-kafka:9092}
+      KAFKA_AUDIT_TOPIC: ${KAFKA_AUDIT_TOPIC:-audit-log-raw}
     ports:
       - '${PORT:-8080}:${PORT:-8080}'
     depends_on:
       redis:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     volumes:
       - ./logs:/app/logs
+      - ./migrations:/app/migrations:ro
     healthcheck:
       test:
         [
@@ -47,6 +56,69 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: secumesh-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-secumesh}
+      POSTGRES_USER: ${POSTGRES_USER:-secumesh}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secumesh}
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-secumesh} -d ${POSTGRES_DB:-secumesh}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: bitnami/kafka:3.8
+    container_name: secumesh-kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+    ports:
+      - '${KAFKA_PORT:-9092}:9092'
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: secumesh-worker
+    restart: unless-stopped
+    command: ['run', '--allow-env', '--allow-net', '--allow-read', '--allow-write', 'src/worker.ts']
+    env_file:
+      - .env
+    environment:
+      AUDIT_TOPIC_PATH: ${AUDIT_TOPIC_PATH:-logs/audit-topic.jsonl}
+      POSTGRES_URL: ${POSTGRES_URL:-postgres://secumesh:secumesh@postgres:5432/secumesh}
+      KAFKA_BROKER: ${KAFKA_BROKER:-kafka:9092}
+      KAFKA_AUDIT_TOPIC: ${KAFKA_AUDIT_TOPIC:-audit-log-raw}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    volumes:
+      - ./logs:/app/logs
+      - ./migrations:/app/migrations:ro
 
   one-api:
     image: justsong/one-api:latest
@@ -76,3 +148,4 @@ services:
 
 volumes:
   redis-data:
+  postgres-data:

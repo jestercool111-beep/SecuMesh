@@ -37,6 +37,10 @@ function createTestConfig(overrides: Partial<AppConfig> = {}): AppConfig {
     rateLimitMaxRequests: 120,
     enableConsoleAudit: false,
     auditLogPath: '',
+    kafkaBroker: '',
+    kafkaAuditTopic: 'audit-log-raw',
+    postgresUrl: 'postgres://secumesh:secumesh@postgres:5432/secumesh',
+    jwtSecret: 'secumesh-dev-secret',
     redisUrl: 'redis://127.0.0.1:6379/0',
     redisKeyPrefix: 'secumesh:test:',
   };
@@ -755,6 +759,8 @@ Deno.test('chat completions enforces in-memory rate limit', async () => {
       rateLimitMaxRequests: 1,
       rateLimitWindowMs: 60_000,
       blockOnInjection: true,
+      internalApiKeys: new Set(),
+      adminApiKeys: new Set(),
     }),
     { auditService: createQuietAuditService() },
   );
@@ -781,4 +787,148 @@ Deno.test('chat completions enforces in-memory rate limit', async () => {
     'rate_limit_exceeded',
     'Expected rate limit error type',
   );
+});
+
+Deno.test('models endpoint returns tenant-visible models', async () => {
+  const handler = createHandler(
+    createTestConfig({
+      allowedModels: new Set(['openai/gpt-3.5-turbo', 'qwen/qwen-vl-plus']),
+      upstreamBaseUrl: 'https://upstream.test',
+    }),
+    { auditService: createQuietAuditService() },
+  );
+
+  const response = await invokeGateway(handler, '/v1/models', { method: 'GET' });
+  const payload = await response.json();
+
+  assertEquals(response.status, 200, 'Expected models endpoint to succeed');
+  assert(Array.isArray(payload.data), 'Expected models payload to return data array');
+  assert(
+    payload.data.some((item: { id: string }) => item.id === 'openai/gpt-3.5-turbo'),
+    'Expected tenant-visible model to be listed',
+  );
+});
+
+Deno.test('api key management can create and list tenant api keys', async () => {
+  const handler = createHandler(
+    createTestConfig({
+      upstreamBaseUrl: 'https://upstream.test',
+    }),
+    { auditService: createQuietAuditService() },
+  );
+
+  const createResponse = await invokeGateway(handler, '/api/v1/api-keys', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      name: 'CLI Key',
+      scopes: ['chat', 'embeddings'],
+    }),
+  });
+  const listResponse = await invokeGateway(handler, '/api/v1/api-keys', { method: 'GET' });
+
+  const created = await createResponse.json();
+  const listed = await listResponse.json();
+
+  assertEquals(createResponse.status, 201, 'Expected API key creation to succeed');
+  assert(typeof created.rawKey === 'string', 'Expected raw key to be returned once');
+  assert(Array.isArray(listed.items), 'Expected API key list payload');
+  assert(
+    listed.items.some((item: { name: string }) => item.name === 'CLI Key'),
+    'Expected created key to be listed',
+  );
+});
+
+Deno.test('compliance logs endpoint filters by tenant scope', async () => {
+  const directory = await Deno.makeTempDir({ dir: '/tmp', prefix: 'secumesh-compliance-' });
+  const path = `${directory}/audit.jsonl`;
+  const sink = new FileAuditSink(path);
+  await sink.write({
+    timestamp: '2026-04-02T10:00:00.000Z',
+    requestId: 'req-demo-1',
+    sessionId: 'session-demo',
+    tenantId: 'tenant-demo',
+    route: '/v1/chat/completions',
+    method: 'POST',
+    clientIp: '127.0.0.1',
+    status: 200,
+    durationMs: 12,
+    stream: false,
+    findings: [],
+  });
+  await sink.write({
+    timestamp: '2026-04-02T10:01:00.000Z',
+    requestId: 'req-other-1',
+    sessionId: 'session-other',
+    tenantId: 'tenant-other',
+    route: '/v1/chat/completions',
+    method: 'POST',
+    clientIp: '127.0.0.1',
+    status: 200,
+    durationMs: 12,
+    stream: false,
+    findings: [],
+  });
+
+  const handler = createHandler(
+    createTestConfig({
+      auditLogPath: path,
+    }),
+    {
+      auditService: createQuietAuditService(),
+      auditRepository: new FileAuditRepository(path),
+    },
+  );
+
+  const response = await invokeGateway(handler, '/compliance/logs?limit=10', { method: 'GET' });
+  const payload = await response.json();
+
+  assertEquals(response.status, 200, 'Expected compliance logs query to succeed');
+  assertEquals(payload.count, 1, 'Expected tenant scoping to filter out other tenant logs');
+  assertEquals(payload.items[0].requestId, 'req-demo-1', 'Expected tenant-scoped request');
+});
+
+Deno.test('generic completions and embeddings routes proxy upstream responses', async () => {
+  const fetchImpl: typeof fetch = async () =>
+    new Response(JSON.stringify({ object: 'ok' }), {
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+      },
+    });
+
+  const handler = createHandler(
+    createTestConfig({
+      upstreamBaseUrl: 'https://upstream.test',
+    }),
+    {
+      fetchImpl,
+      auditService: createQuietAuditService(),
+    },
+  );
+
+  const completions = await invokeGateway(handler, '/v1/completions', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'openai/gpt-3.5-turbo',
+      prompt: 'hello',
+    }),
+  });
+  const embeddings = await invokeGateway(handler, '/v1/embeddings', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'text-embedding-3-small',
+      input: 'hello',
+    }),
+  });
+
+  assertEquals(completions.status, 200, 'Expected completions proxy to succeed');
+  assertEquals(embeddings.status, 200, 'Expected embeddings proxy to succeed');
 });

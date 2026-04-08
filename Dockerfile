@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY deno.json ./
 COPY src ./src
+COPY migrations ./migrations
 
 RUN deno cache src/main.ts
 
